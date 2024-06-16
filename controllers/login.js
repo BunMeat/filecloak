@@ -3,13 +3,13 @@ import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/fir
 import { getFirestore, doc , getDoc} from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js'
 
 const firebaseConfig = {
-    apiKey: "AIzaSyB20-FKaNh-WQMKzdeDQGw4vggTurEdrUc",
-    authDomain: "filecloak.firebaseapp.com",
-    projectId: "filecloak",
-    storageBucket: "filecloak.appspot.com",
-    messagingSenderId: "370477539338",
-    appId: "1:370477539338:web:5ad4ca5fbeddd2ce8cbff3"
-};
+    apiKey: process.env.FIREBASEKEY,
+    authDomain: process.env.FIREBASEAUTHDOMAIN,
+    projectId: process.env.PROJECTID,
+    storageBucket: process.env.STORAGEBUCKET,
+    messagingSenderId: process.env.MESSAGINGSENDERID,
+    appId: process.env.APPID
+  };
 
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
