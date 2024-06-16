@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Encryption</title>
+    <link rel="stylesheet" href="adminPageEncryptStyles.css">
+   
+</head>
+<body>
+    <div class="container" id="encryptForm">
+        <div class="logoutButton">
+            <button class="button logout" onclick="logOut()">Logout</button><br>
+        </div>
+        <header>
+            <img src="FileCloak.webp" alt="FileCloak Logo" class="logo">
+        </header>
+        <form class="login-form">
+            <div class="panel">
+                <div class="file-encryption">
+                    <h2>Input File</h2>
+                    <div class="file-input">
+                        <input type="file" id="fileInput" name="file" />
+                    </div>
+                    <div>
+                        <textarea id="keyGen" rows="3" cols="50" readonly></textarea><br>
+                        <button id="keyGenButton" type="button">Generate Key</button><br>
+                        <button id="copyButton" type="button">Copy to Clipboard</button>
+                    </div>
+                    <div>
+                        <textarea id="output" rows="9" cols="50" readonly></textarea><br>
+                        <button id="copyButton2" type="button">Copy to Clipboard</button>
+                    </div>
+                    <button type="submit" class="button encrypt" value="Encrypt" id="encryptButton">Encrypt</button>
+                </div>
+                <div>
+                    <div>
+                        <button class="button decrypt" onclick="goToDecrypt()">Decrypt</button><br>
+                    </div>
+                    <br>
+                    <div>
+                        <button class="button list" onclick="toggleForms()">Move to List</button><br>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        function toggleForms() {
+            window.location.href="../FE/dataList.html"
+        }
+    </script>
+    <script>
+        function goToDecrypt() {
+            window.location.href="../FE/adminPageDecrypt.html"
+        }
+    </script>
+    <script>
+        function logOut() {
+            window.location.href="../FE/Login.html"
+        }
+    </script>
+    <script type="module" src="../controllers/encrypt.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</body>
+</html>

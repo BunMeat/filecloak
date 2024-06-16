@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Decryption</title>
+    <link rel="stylesheet" href="userPage.css">
+   
+</head>
+<body>
+    <div class="container" id="decryptForm">
+        <div class="logoutButton">
+            <button class="button logout" onclick="logOut()">Logout</button><br>
+        </div>
+        <header>
+            <img src="FileCloak.webp" alt="FileCloak Logo" class="logo">
+        </header>
+        <form class="login-form">
+            <div class="panel">
+                <div class="file-decryption">
+                    <h2>Input Key</h2>
+                    <div>
+                        <input type="text" id="keyInput" />
+                    </div>
+                    <h2>Input Token</h2>
+                    <div>
+                        <input type="text" id="tokenInput" />
+                    </div>
+                    <div>
+                        <textarea id="output" rows="9" cols="50" readonly></textarea><br>
+                        <button id="copyButton" type="button">Copy to Clipboard</button>
+                    </div>
+                    <button type="submit" class="button decrypt" value="Decrypt" id="decryptButton">Decrypt</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        function logOut() {
+            window.location.href="../FE/Login.html"
+        }
+    </script>
+    <script type="module" src="../controllers/decrypt.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</body>
+</html>
