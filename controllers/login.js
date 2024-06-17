@@ -32,9 +32,9 @@ loginForm.addEventListener('submit', async (e) => {
             const userData = userDoc.data();
             alert("Sukses Login");
             if(userData.role == "user"){
-                window.location.href="../FE/userPage.html";
+                window.location.href="../public/userPage.html";
             } else {
-                window.location.href="../FE/adminPageEncrypt.html";
+                window.location.href="../public/adminPageEncrypt.html";
             }
          } else {
             alert("Email / Password Salah");
