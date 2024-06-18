@@ -1,6 +1,6 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
-import { getFirestore, doc , getDoc} from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js'
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { getFirestore, doc , getDoc} from 'firebase/firestore'
 
 const firebaseConfig = {
     apiKey: process.env.FIREBASEKEY,
