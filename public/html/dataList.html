@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Encryption History</title>
-  <link rel="stylesheet" href="./dataList.css">
+  <link rel="stylesheet" href="../css/dataList.css">
 </head>
 <body>
   <div class="container" id="listForm">
@@ -32,7 +32,7 @@
 
   <!-- Include your getData.js script -->
   <script type="module">
-    import { getDataFile } from '../controllers/getData.js';
+    import { getDataFile } from '../../controllers/getData.js';
 
     // Function to display data in the list
     function displayData(data) {
@@ -70,17 +70,17 @@
 
   <script>
     function goToEncrypt() {
-        window.location.href="../public/adminPageEncrypt.html"
+        window.location.href="./adminPageEncrypt.html"
     }
   </script>
   <script>
     function logOut() {
-        window.location.href="../public/Login.html"
+        window.location.href="./Login.html"
     }
   </script>
   <script>
     function goToDecrypt() {
-        window.location.href="../public/adminPageDecrypt.html"
+        window.location.href="../adminPageDecrypt.html"
     }
   </script>
 </body>
