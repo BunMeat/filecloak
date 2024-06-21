@@ -1,22 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FileCloak - Secure Your Files</title>
-    <link rel="stylesheet" href="index.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <script>
-        window.env = {
-          FIREBASEKEY: 'AIzaSyB20-FKaNh-WQMKzdeDQGw4vggTurEdrUc',
-          FIREBASEAUTHDOMAIN: 'filecloak.firebaseapp.com',
-          PROJECTID: 'filecloak',
-          STORAGEBUCKET: 'filecloak.appspot.com',
-          MESSAGINGSENDERID: '370477539338',
-          APPID: '1:370477539338:web:5ad4ca5fbeddd2ce8cbff3'
-        };
-    </script>
-</head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FileCloak</title>
+  <link rel="stylesheet" href="./index.css">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script src="./env.js"></script> 
 <body>
     <div class="container" id="landingPage">
         <header>
@@ -39,15 +29,14 @@
             </section>
         </main>
     </div>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script>
         function register() {
-            window.location.href="../html/register.html"
+            window.location.href="./html/register.html"
         }
     </script>
     <script>
         function login() {
-            window.location.href="../html/Login.html"
+            window.location.href="./html/Login.html"
         }
     </script>
 </body>
