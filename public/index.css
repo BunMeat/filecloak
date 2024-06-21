@@ -1,0 +1,158 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+
+body, html {
+    height: 100%;
+    background: linear-gradient(135deg, #E0F7FA 0%, #80DEEA 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 90%;
+    max-width: 800px;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    position: relative;
+}
+
+header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+header img {
+    width: 150px;
+}
+
+header nav {
+    display: flex;
+    gap: 10px;
+}
+
+.intro {
+    background: #f8f8f8;
+    padding: 40px;
+    border-radius: 15px;
+    margin-top: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 2.5em;
+    color: #00796B;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+h1 span {
+    color: #004D40;
+}
+
+.tagline {
+    font-size: 1.2em;
+    color: #004D40;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.description {
+    font-size: 1em;
+    color: #555555;
+    margin-bottom: 30px;
+}
+
+.features {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.feature {
+    font-size: 1em;
+    color: #555555;
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.feature i {
+    font-size: 1.5em;
+    margin-right: 10px;
+    color: #00796B;
+}
+
+.button {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: #00796B;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+.login {
+    background-color: #00796B;
+}
+
+.signup {
+    background-color: #004D40;
+}
+
+.encrypt-now {
+    background-color: #00796B;
+}
+
+.button:hover {
+    background-color: #004D40;
+}
+
+button:focus {
+    outline: none;
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+    }
+    
+    .features {
+        flex-direction: column;
+    }
+    
+    .feature {
+        justify-content: center;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    .tagline {
+        font-size: 1em;
+    }
+    
+    .description {
+        font-size: 0.9em;
+    }
+    
+    .button {
+        width: 80%;
+        margin: 10px auto;
+    }
+}
