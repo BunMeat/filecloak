@@ -32,7 +32,6 @@ registrationForm.addEventListener('submit', async (e) => {
     console.error("Register Error", errorMsg);
   }
 })
-export default firebaseConfig;
 
 
 
