@@ -1,14 +1,14 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
-
+require('dotenv').config();
 
 const firebaseConfig = {
-  apiKey: process.env.FIREBASEKEY,
-  authDomain: process.env.FIREBASEAUTHDOMAIN,
-  projectId: process.env.PROJECTID,
-  storageBucket: process.env.STORAGEBUCKET,
-  messagingSenderId: process.env.MESSAGINGSENDERID,
-  appId: process.env.APPID
+  apiKey: window.env.FIREBASEKEY,
+  authDomain: window.env.FIREBASEAUTHDOMAIN,
+  projectId: window.env.PROJECTID,
+  storageBucket: window.env.STORAGEBUCKET,
+  messagingSenderId: window.env.MESSAGINGSENDERID,
+  appId: window.env.APPID
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
@@ -32,6 +32,7 @@ registrationForm.addEventListener('submit', async (e) => {
     console.error("Register Error", errorMsg);
   }
 })
+export default firebaseConfig;
 
 
 
