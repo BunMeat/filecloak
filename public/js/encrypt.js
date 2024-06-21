@@ -2,15 +2,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/fireba
 import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
 import { getFirestore, collection, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
-
-const firebaseConfig = {
-  apiKey: process.env.FIREBASEKEY,
-  authDomain: process.env.FIREBASEAUTHDOMAIN,
-  projectId: process.env.PROJECTID,
-  storageBucket: process.env.STORAGEBUCKET,
-  messagingSenderId: process.env.MESSAGINGSENDERID,
-  appId: process.env.APPID
-};
+import firebaseConfig from '../../firebase/firebase-config';
 
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
