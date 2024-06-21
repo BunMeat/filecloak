@@ -3,36 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup Page</title>
-    <link rel="stylesheet" href="./css/Signupstyles.css">
+    <title>FileCloak - Secure Your Files</title>
+    <link rel="stylesheet" href="landingPage.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        window.env = {
+          FIREBASEKEY: 'AIzaSyB20-FKaNh-WQMKzdeDQGw4vggTurEdrUc',
+          FIREBASEAUTHDOMAIN: 'filecloak.firebaseapp.com',
+          PROJECTID: 'filecloak',
+          STORAGEBUCKET: 'filecloak.appspot.com',
+          MESSAGINGSENDERID: '370477539338',
+          APPID: '1:370477539338:web:5ad4ca5fbeddd2ce8cbff3'
+        };
+    </script>
 </head>
 <body>
-    <div class="login-container" id="registerForm">
-        <div class="logo-container">
-            <img src="./asset/FileCloak.webp" alt="FileCloak Logo">
-        </div>
-        <form class="login-form">
-            <div class="input-group">
-                <input type="text" id="email" name="email" placeholder="Email" required>
-                <i class="icon email-icon"></i> <!-- Icon placeholder -->
-            </div>
-            <div class="input-group">
-                <input type="password" id="password" name="password" placeholder="Password" required>
-                <i class="icon password-icon"></i> <!-- Icon placeholder -->
-            </div>
-            <div class="input-group">
-                <input type="password" id="repeatPassword" name="repeatPassword" placeholder="Repeat Password" required>
-                <i class="icon password-icon"></i> <!-- Icon placeholder -->
-            </div>
-            <button type="submit" class="button" value="Register">SIGNUP</button>
-            <button type="button" class="button login-btn" onclick="toggleForms()">Login</button>
-        </form>
+    <div class="container" id="landingPage">
+        <header>
+            <img src="./asset/FileCloak.webp" alt="FileCloak Logo" class="logo">
+            <nav>
+                <button class="button login" onclick="login()">Login</button>
+                <button class="button signup" onclick="register()">Sign Up</button>
+            </nav>
+        </header>
+        <main>
+            <section class="intro">
+                <h1>Welcome to <span>FileCloak</span></h1>
+                <p class="tagline">Secure Your Files with Advanced Encryption</p>
+                <p class="description">Protect your documents with state-of-the-art encryption technology easily accessible through our platform.</p>
+                <div class="features">
+                    <p class="feature"><i class="fas fa-lock"></i> Fast & Secure Encryption</p>
+                    <p class="feature"><i class="fas fa-user-friends"></i> User-friendly interface</p>
+                </div>
+                <button class="button encrypt-now" onclick="login()">Encrypt Now</button>
+            </section>
+        </main>
     </div>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script>
-        function toggleForms() {
-            window.location.href="./html/Login.html"
+        function register() {
+            window.location.href="../html/register.html"
         }
     </script>
-    <script type ="module" src='../controllers/register.js'></script>
+    <script>
+        function login() {
+            window.location.href="../html/Login.html"
+        }
+    </script>
 </body>
 </html>
