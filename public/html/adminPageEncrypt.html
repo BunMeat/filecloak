@@ -18,14 +18,15 @@
         <form class="login-form">
             <div class="panel">
                 <div class="file-encryption">
-                    <h2>Input File</h2>
-                    <div class="file-input">
-                        <input type="file" id="fileInput" name="file" required/>
-                    </div>
+                    <h2>Input Key</h2>
                     <div>
                         <textarea id="keyGen" rows="3" cols="50" readonly></textarea><br>
                         <button id="keyGenButton" type="button" required>Generate Key</button><br>
                         <button id="copyButton" type="button">Copy to Clipboard</button>
+                    </div>
+                    <h2>Input File</h2>
+                    <div class="file-input">
+                        <input type="file" id="fileInput" name="file" required/>
                     </div>
                     <div>
                         <textarea id="output" rows="9" cols="50" readonly></textarea><br>
