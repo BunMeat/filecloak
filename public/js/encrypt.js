@@ -3,20 +3,19 @@ import { getAuth as getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/f
 import { getFirestore as getFirestore, collection as collection, doc as doc, setDoc as setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 import { getStorage as getStorage, ref as ref, uploadBytes as uploadBytes, getDownloadURL as getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
 
-async function getFirebaseConfig() {
-  const response = await fetch('/api/firebase-config');
-  return response.json();
-}
+const firebaseConfig = {
+  apiKey: window.env.FIREBASEKEY,
+  authDomain: window.env.FIREBASEAUTHDOMAIN,
+  projectId: window.env.PROJECTID,
+  storageBucket: window.env.STORAGEBUCKET,
+  messagingSenderId: window.env.MESSAGINGSENDERID,
+  appId: window.env.APPID
+};
 
-async function initializeFirebase() {
-  const firebaseConfig = await getFirebaseConfig();
-  const firebaseApp = initializeApp(firebaseConfig);
-  const auth = getAuth(firebaseApp);
-  const firestore = getFirestore(firebaseApp);
-  const storage = getStorage(firebaseApp);
-
-  return { auth, firestore, storage };
-}
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const firestore = getFirestore(firebaseApp);
+const storage = getStorage(firebaseApp);
 
 const encryptForm = document.getElementById('encryptForm');
 
@@ -64,54 +63,52 @@ document.getElementById('keyGenButton').addEventListener('click', function() {
   document.getElementById('keyGen').value = randomBytes.toString();
 });
 
-initializeFirebase().then(({ auth, firestore, storage }) => {
-  encryptForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fileInput = document.getElementById('fileInput');
-    const file = fileInput.files[0];
-    const key = document.getElementById('keyGen').value;
+encryptForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fileInput = document.getElementById('fileInput');
+  const file = fileInput.files[0];
+  const key = document.getElementById('keyGen').value;
 
-    if (!key) {
-      alert('Please generate or provide an encryption key before proceeding.');
-      return;
+  if (!key) {
+    alert('Please generate or provide an encryption key before proceeding.');
+    return;
+  }
+
+  const currentDatetime = new Date();
+  const formattedDatetime = currentDatetime.toLocaleString();
+  const storageRef = ref(storage, 'uploads/' + file.name + '-' + formattedDatetime);
+
+  try {
+    // Upload file
+    const snapshot = await uploadBytes(storageRef, file);
+    console.log('Uploaded a blob or file!', snapshot);
+
+    // Get download URL
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    const encryptedLink = encrypt(downloadURL, key);
+    document.getElementById('output').value = encryptedLink;
+
+    // Get the current user
+    const user = auth.currentUser;
+    if (user) {
+      const userCollection = collection(firestore, "users");
+      const userRefDoc = doc(userCollection, user.uid);
+      const filesSubCollection = collection(userRefDoc, "files");
+      const fileDocRef = doc(filesSubCollection);
+
+      const fileData = {
+        timestamp: formattedDatetime,
+        url: downloadURL,
+        encryptUrl: encryptedLink
+      };
+
+      await setDoc(fileDocRef, fileData);
+      console.log('File data saved to Firestore:', fileData);
+    } else {
+      console.error('No user is signed in.');
     }
-
-    const currentDatetime = new Date();
-    const formattedDatetime = currentDatetime.toLocaleString();
-    const storageRef = ref(storage, 'uploads/' + file.name + '-' + formattedDatetime);
-
-    try {
-      // Upload file
-      const snapshot = await uploadBytes(storageRef, file);
-      console.log('Uploaded a blob or file!', snapshot);
-
-      // Get download URL
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      const encryptedLink = encrypt(downloadURL, key);
-      document.getElementById('output').value = encryptedLink;
-
-      // Get the current user
-      const user = auth.currentUser;
-      if (user) {
-        const userCollection = collection(firestore, "users");
-        const userRefDoc = doc(userCollection, user.uid);
-        const filesSubCollection = collection(userRefDoc, "files");
-        const fileDocRef = doc(filesSubCollection);
-
-        const fileData = {
-          timestamp: formattedDatetime,
-          url: downloadURL,
-          encryptUrl: encryptedLink
-        };
-
-        await setDoc(fileDocRef, fileData);
-        console.log('File data saved to Firestore:', fileData);
-      } else {
-        console.error('No user is signed in.');
-      }
-    } catch (error) {
-      console.error('Upload failed', error);
-      alert('Upload failed: ' + error.message);
-    }
-  });
+  } catch (error) {
+    console.error('Upload failed', error);
+    alert('Upload failed: ' + error.message);
+  }
 });
