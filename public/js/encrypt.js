@@ -72,17 +72,16 @@ encryptForm.addEventListener('submit', async (e) => {
   const storageRef = ref(storage, 'uploads/' + file.name + '-' + formattedDatetime);
 
   try {
-    // Upload file
-    const snapshot = await uploadBytes(storageRef, file);
-    console.log('Uploaded a blob or file!', snapshot);
-
-    // Get download URL
+    //Generate key
     const key = document.getElementById('keyGen').value;
-    const downloadURL = await getDownloadURL(snapshot.ref);
     if(!key){
       alert('Please generate an encryption key');
       return error;
     } else {
+      // Upload file & get upload URL
+      const snapshot = await uploadBytes(storageRef, file);
+      console.log('Uploaded a blob or file!', snapshot);
+      const downloadURL = await getDownloadURL(snapshot.ref);
       const encryptedLink = encrypt(downloadURL, key);
       document.getElementById('output').value = encryptedLink;
     } 
