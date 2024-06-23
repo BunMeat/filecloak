@@ -1,7 +1,7 @@
 import { initializeApp as initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
 import { getAuth as getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
-import { getFirestore as getFirestore, collection as collection, doc as doc, setDoc as setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js'
-import { getStorage as getStorage, ref as ref, uploadBytes as uploadBytes, getDownloadURL as getDownloadURL} from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
+import { getFirestore as getFirestore, collection as collection, doc as doc, setDoc as setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
+import { getStorage as getStorage, ref as ref, uploadBytes as uploadBytes, getDownloadURL as getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
 
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
@@ -67,24 +67,26 @@ encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const fileInput = document.getElementById('fileInput');
   const file = fileInput.files[0];
+  const key = document.getElementById('keyGen').value;
+
+  if (!key) {
+    alert('Please generate or provide an encryption key before proceeding.');
+    return;
+  }
+
   const currentDatetime = new Date();
   const formattedDatetime = currentDatetime.toLocaleString();
   const storageRef = ref(storage, 'uploads/' + file.name + '-' + formattedDatetime);
 
   try {
-    //Generate key
-    const key = document.getElementById('keyGen').value;
-    if(!key){
-      alert('Please generate an encryption key');
-      return error;
-    } else {
-      // Upload file & get upload URL
-      const snapshot = await uploadBytes(storageRef, file);
-      console.log('Uploaded a blob or file!', snapshot);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      const encryptedLink = encrypt(downloadURL, key);
-      document.getElementById('output').value = encryptedLink;
-    } 
+    // Upload file
+    const snapshot = await uploadBytes(storageRef, file);
+    console.log('Uploaded a blob or file!', snapshot);
+
+    // Get download URL
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    const encryptedLink = encrypt(downloadURL, key);
+    document.getElementById('output').value = encryptedLink;
 
     // Get the current user
     const user = auth.currentUser;
@@ -110,5 +112,3 @@ encryptForm.addEventListener('submit', async (e) => {
     alert('Upload failed: ' + error.message);
   }
 });
-
-  
