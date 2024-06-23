@@ -79,7 +79,7 @@ encryptForm.addEventListener('submit', async (e) => {
     // Get download URL
     const key = document.getElementById('keyGen').value;
     const downloadURL = await getDownloadURL(snapshot.ref);
-    if(key == null){
+    if(!key){
       alert('Please generate an encryption key');
       return error;
     } else {
