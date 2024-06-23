@@ -78,11 +78,14 @@ encryptForm.addEventListener('submit', async (e) => {
 
     // Get download URL
     const key = document.getElementById('keyGen').value;
-    console.log(key);
     const downloadURL = await getDownloadURL(snapshot.ref);
-    const encryptedLink = encrypt(downloadURL, key);
-    console.log(encryptedLink);
-    document.getElementById('output').value = encryptedLink;
+    if(key == null){
+      alert('Please generate an encryption key');
+      return error;
+    } else {
+      const encryptedLink = encrypt(downloadURL, key);
+      document.getElementById('output').value = encryptedLink;
+    } 
 
     // Get the current user
     const user = auth.currentUser;
