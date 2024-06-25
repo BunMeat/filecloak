@@ -8,8 +8,6 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
-// Your other code
-
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
