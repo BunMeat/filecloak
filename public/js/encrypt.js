@@ -75,8 +75,17 @@ encryptForm.addEventListener('submit', async (e) => {
   }
 
   const currentDatetime = new Date();
-  const formattedDatetime = currentDatetime.toLocaleString();
-  const storageRef = ref(storage, 'uploads/' + file.name + '-' + formattedDatetime);
+  const options = { 
+    timeZone: 'Asia/Jakarta', 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit', 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    second: '2-digit' 
+  };
+  const formattedDatetime = new Intl.DateTimeFormat('en-GB', options).format(currentDatetime);
+  const storageRef = ref(storage, 'uploads/' + file.name + '-' + formattedDatetime.replace(/[:\s]/g, '-'));
 
   try {
     // Upload file
