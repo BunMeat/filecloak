@@ -6,6 +6,48 @@
     <title>File Decryption</title>
     <link rel="stylesheet" href="../css/adminPageDecryptStyles.css">
     <script src="../env.js"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: window.env.FIREBASEKEY,
+            authDomain: window.env.FIREBASEAUTHDOMAIN,
+            projectId: window.env.PROJECTID,
+            storageBucket: window.env.STORAGEBUCKET,
+            messagingSenderId: window.env.MESSAGINGSENDERID,
+            appId: window.env.APPID
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const firestore = getFirestore(app);
+
+        // Check user role on page load
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDocRef = doc(firestore, 'users', user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    if (userData.role !== 'admin') {
+                        alert("Access denied. Admins only.");
+                        window.location.href = "./Login.html";
+                    }
+                } else {
+                    alert("No user data found. Access denied.");
+                    window.location.href = "./Login.html";
+                }
+            } else {
+                alert("Not authenticated. Redirecting to login.");
+                window.location.href = "./Login.html";
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="container" id="decryptForm">
