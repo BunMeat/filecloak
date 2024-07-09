@@ -48,9 +48,9 @@ function decrypt(encryptedText, key) {
 decryptForm.addEventListener('submit', async (e) =>{
   e.preventDefault();
   const user = auth.currentUser;
-    if(user.role === "user"){
-      window.location.href = "../html/userPage.html";
-    }
+  if(user.role === "user"){
+    window.location.href = "../html/userPage.html";
+  }
   const encryptET = document.getElementById('tokenInput').value;
   const keyET = document.getElementById('keyInput').value;
   const decryptET = document.getElementById('output');
