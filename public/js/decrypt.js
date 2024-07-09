@@ -1,3 +1,18 @@
+import { initializeApp as initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
+import { getAuth as getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: window.env.FIREBASEKEY,
+  authDomain: window.env.FIREBASEAUTHDOMAIN,
+  projectId: window.env.PROJECTID,
+  storageBucket: window.env.STORAGEBUCKET,
+  messagingSenderId: window.env.MESSAGINGSENDERID,
+  appId: window.env.APPID
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+
 const decryptForm = document.getElementById('decryptForm');
 
 function copyLinkToClipboard(text) {
@@ -32,6 +47,10 @@ function decrypt(encryptedText, key) {
 }
 decryptForm.addEventListener('submit', async (e) =>{
   e.preventDefault();
+  const user = auth.currentUser;
+    if(user.role === "user"){
+      window.location.href = "../html/userPage.html";
+    }
   const encryptET = document.getElementById('tokenInput').value;
   const keyET = document.getElementById('keyInput').value;
   const decryptET = document.getElementById('output');
