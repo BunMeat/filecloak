@@ -1,6 +1,5 @@
 import { initializeApp as initializeApp} from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
 import { getFirestore as getFirestore, collection as collection, getDocs as getDocs } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
-import { getAuth as getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
 
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
@@ -13,15 +12,9 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 const firestore = getFirestore(firebaseApp);
-const auth = getAuth(firebaseApp);
 
 // Function to get data from Firestore
 async function getDataFile() {
-  const user = auth.currentUser;
-  if(user.role === "user"){
-    window.location.href = "../html/userPage.html";
-  }
-  
   const usersCollection = collection(firestore, "users");
   const usersSnapshot = await getDocs(usersCollection);
   const data = [];

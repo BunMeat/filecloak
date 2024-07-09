@@ -88,10 +88,6 @@ encryptForm.addEventListener('submit', async (e) => {
   const storageRef = ref(storage, 'uploads/' + file.name + '-' + formattedDatetime.replace(/[:\s]/g, '-'));
 
   try {
-    const user = auth.currentUser;
-    if(user.role === "user"){
-      window.location.href = "../html/userPage.html";
-    }
     // Upload file
     const snapshot = await uploadBytes(storageRef, file);
     console.log('Uploaded a blob or file!', snapshot);
@@ -102,6 +98,7 @@ encryptForm.addEventListener('submit', async (e) => {
     document.getElementById('output').value = encryptedLink;
 
     // Get the current user
+    const user = auth.currentUser;
     if (user) {
       const userCollection = collection(firestore, "users");
       const userRefDoc = doc(userCollection, user.uid);
