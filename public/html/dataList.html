@@ -36,18 +36,18 @@
                 const userData = userDocSnap.data();
                 if (userData.role !== 'admin') {
                     alert("Access denied. Admins only.");
-                    window.location.href = "./Login.html";
+                    window.location.href = "./userPage.html";
                 }
             } else {
                 alert("No user data found. Access denied.");
-                window.location.href = "./Login.html";
+                window.location.href = "./userPage.html";
             }
         } else {
             alert("Not authenticated. Redirecting to login.");
-            window.location.href = "./Login.html";
+            window.location.href = "./userPage.html";
         }
     });
-</script>
+  </script>
 </head>
 <body>
   <div class="container" id="listForm">
