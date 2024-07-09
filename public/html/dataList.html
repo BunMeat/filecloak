@@ -38,6 +38,19 @@
     // Function to display data in the list
     function displayData(data) {
       const listElement = document.getElementById('list');
+      listElement.innerHTML = ''; // Clear the list before appending new items
+
+      // Sort users by their most recent file's timestamp
+      data.forEach(user => {
+        user.files.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      });
+
+      // Sort users based on the most recent file timestamp
+      data.sort((a, b) => {
+        const aLatest = a.files.length ? new Date(a.files[0].timestamp) : 0;
+        const bLatest = b.files.length ? new Date(b.files[0].timestamp) : 0;
+        return bLatest - aLatest;
+      });
 
       data.forEach((item) => {
         const listItem = document.createElement('li');
@@ -71,17 +84,17 @@
 
   <script>
     function goToEncrypt() {
-        window.location.href="./adminPageEncrypt.html"
+      window.location.href="./adminPageEncrypt.html";
     }
   </script>
   <script>
     function logOut() {
-        window.location.href="./Login.html"
+      window.location.href="./Login.html";
     }
   </script>
   <script>
     function goToDecrypt() {
-        window.location.href="./adminPageDecrypt.html"
+      window.location.href="./adminPageDecrypt.html";
     }
   </script>
 </body>
