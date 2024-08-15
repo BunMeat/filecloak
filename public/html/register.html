@@ -6,6 +6,26 @@
     <title>Signup Page</title>
     <link rel="stylesheet" href="../css/registerstyles.css">
     <script src="../env.js"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: window.env.FIREBASEKEY,
+            authDomain: window.env.FIREBASEAUTHDOMAIN,
+            projectId: window.env.PROJECTID,
+            storageBucket: window.env.STORAGEBUCKET,
+            messagingSenderId: window.env.MESSAGINGSENDERID,
+            appId: window.env.APPID
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const firestore = getFirestore(app);
+    </script>
 </head>
 <body>
     <div class="login-container" id="registerForm">
