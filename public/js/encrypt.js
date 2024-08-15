@@ -92,6 +92,15 @@ encryptForm.addEventListener('submit', async (e) => {
     const snapshot = await uploadBytes(storageRef, file);
     console.log('Uploaded a blob or file!', snapshot);
 
+    // Update extension for word
+    const fileRef = storageRef.child('your-file.docx');
+    const metadata = {
+      contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    };
+    fileRef.put(file, metadata).then(snapshot => {
+      console.log('Uploaded with metadata!');
+    });
+
     // Get download URL
     const downloadURL = await getDownloadURL(snapshot.ref);
     const encryptedLink = encrypt(downloadURL, key);
