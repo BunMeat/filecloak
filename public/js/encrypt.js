@@ -4,12 +4,12 @@ import { getFirestore as getFirestore, collection as collection, doc as doc, set
 import { getStorage as getStorage, ref as ref, uploadBytes as uploadBytes, getDownloadURL as getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
 
 const firebaseConfig = {
-  apiKey: window.env.FIREBASEKEY,
-  authDomain: window.env.FIREBASEAUTHDOMAIN,
-  projectId: window.env.PROJECTID,
-  storageBucket: window.env.STORAGEBUCKET,
-  messagingSenderId: window.env.MESSAGINGSENDERID,
-  appId: window.env.APPID
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
