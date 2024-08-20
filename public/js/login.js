@@ -3,12 +3,12 @@ import { getAuth as getAuth, signInWithEmailAndPassword as signInWithEmailAndPas
 import { getFirestore as getFirestore, doc as doc, getDoc as getDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
 const firebaseConfig = {
-  apiKey: window.env.FIREBASEKEY,
-  authDomain: window.env.FIREBASEAUTHDOMAIN,
-  projectId: window.env.PROJECTID,
-  storageBucket: window.env.STORAGEBUCKET,
-  messagingSenderId: window.env.MESSAGINGSENDERID,
-  appId: window.env.APPID
+  apiKey: process.env.NEXT_PUBLIC_FIREBASEKEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASEAUTHDOMAIN,
+  projectId: process.env.NEXT_PUBLIC_PROJECTID,
+  storageBucket: process.env.NEXT_PUBLIC_STORAGEBUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_MESSAGINGSENDERID,
+  appId: process.env.NEXT_PUBLIC_APPID
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
