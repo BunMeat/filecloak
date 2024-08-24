@@ -122,6 +122,21 @@ button:focus {
     outline: none;
 }
 
+.drop-zone {
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.drop-zone.dragover {
+    border-color: #000;
+    background-color: #f0f0f0;
+}
+
+
 @media (max-width: 768px) {
     .panel {
         grid-template-columns: 1fr;

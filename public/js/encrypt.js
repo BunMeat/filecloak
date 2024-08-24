@@ -18,6 +18,7 @@ const firestore = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 
 const encryptForm = document.getElementById('encryptForm');
+const dropZone = document.getElementById('dropZone');
 
 function encrypt(text, key) {
   const encryptKey = CryptoJS.enc.Utf8.parse(key); 
@@ -74,6 +75,38 @@ encryptForm.addEventListener('submit', async (e) => {
     return;
   }
 
+  uploadAndEncryptFile(file, key);
+});
+
+// Drag-and-drop functionality
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
+
+dropZone.addEventListener('dragleave', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+});
+
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    const file = files[0];
+    const key = document.getElementById('keyGen').value;
+    
+    if (!key) {
+      alert('Please generate or provide an encryption key before proceeding.');
+      return;
+    }
+
+    uploadAndEncryptFile(file, key);
+  }
+});
+
+async function uploadAndEncryptFile(file, key) {
   const currentDatetime = new Date();
   const options = { 
     timeZone: 'Asia/Jakarta', 
@@ -120,4 +153,4 @@ encryptForm.addEventListener('submit', async (e) => {
     console.error('Upload failed', error);
     alert('Upload failed: ' + error.message);
   }
-});
+}
