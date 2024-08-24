@@ -63,6 +63,24 @@ document.getElementById('keyGenButton').addEventListener('click', function() {
   document.getElementById('keyGen').value = randomBytes.toString();
 });
 
+const textarea = document.getElementById('textarea');
+const counter = document.getElementById('counter');
+
+textarea.addEventListener('input', updateCounter);
+
+function updateCounter() {
+  const currentLength = textarea.value.length;
+  const maxLength = parseInt(textarea.getAttribute('maxlength'));
+  
+  counter.textContent = currentLength;
+  
+  if (currentLength > maxLength) {
+    counter.style.color = 'red';
+  } else {
+    counter.style.color = 'black';
+  }
+}
+
 encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const fileInput = document.getElementById('fileInput');
