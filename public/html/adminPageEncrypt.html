@@ -66,21 +66,6 @@
                     </div>
                     <div>
                         <textarea id="keyGen" rows="3" cols="50">You can also input a 32 character long key</textarea><br>
-                        <div id="the-count">
-                            <span id="current">0</span>
-                            <span id="maximum">/ 32</span>
-                        </div>
-                        <script>
-                            $('textarea').keyup(function() {
-                    
-                                var characterCount = $(this).val().length,
-                                    current = $('#current'),
-                                    maximum = $('#maximum'),
-                                    theCount = $('#the-count');
-                                
-                                current.text(characterCount);
-                            });
-                        </script>
                         <button id="keyGenButton" type="button" required>Generate Key</button><br>
                         <button id="copyButton" type="button">Copy to Clipboard</button>
                     </div>
