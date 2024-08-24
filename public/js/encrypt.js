@@ -66,7 +66,7 @@ document.getElementById('keyGenButton').addEventListener('click', function() {
 const textarea = document.getElementById('textarea');
 const counter = document.getElementById('counter');
 
-textarea.addEventListener('input', updateCounter);
+keyGen.addEventListener('input', updateCounter);
 
 function updateCounter() {
   const currentLength = textarea.value.length;
