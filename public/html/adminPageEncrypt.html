@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Encryption</title>
     <link rel="stylesheet" href="../css/adminPageEncryptStyles.css">
-    <script src="../env.js"></script>
+    <script src="../../env.js"></script>
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
@@ -34,17 +34,17 @@
 
                 if (userDocSnap.exists()) {
                     const userData = userDocSnap.data();
-                    if (userData.role !== 'user') {
-                        alert("Access denied. Users only.");
-                        window.location.href = "./adminPageEncrypt.html";
+                    if (userData.role !== 'admin') {
+                        alert("Access denied. Admins only.");
+                        window.location.href = "./userPage.html";
                     }
                 } else {
                     alert("No user data found. Access denied.");
-                    window.location.href = "./adminPageEncrypt.html";
+                    window.location.href = "./userPage.html";
                 }
             } else {
                 alert("Not authenticated. Redirecting to login.");
-                window.location.href = "./adminPageEncrypt.html";
+                window.location.href = "./userPage.html";
             }
         });
     </script>
@@ -63,9 +63,6 @@
                     <h2>Input File</h2>
                     <div class="file-input">
                         <input type="file" id="fileInput" name="file" required/>
-                    </div>
-                    <div id="dropZone" class="drop-zone">
-                        <p>Drag & Drop your file here or click to upload</p>
                     </div>
                     <div>
                         <textarea id="keyGen" rows="3" cols="50" readonly></textarea><br>
