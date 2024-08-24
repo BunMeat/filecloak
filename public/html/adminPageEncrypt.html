@@ -34,17 +34,17 @@
 
                 if (userDocSnap.exists()) {
                     const userData = userDocSnap.data();
-                    if (userData.role !== 'admin') {
-                        alert("Access denied. Admin only.");
-                        window.location.href = "./userPage.html";
+                    if (userData.role !== 'user') {
+                        alert("Access denied. Users only.");
+                        window.location.href = "./adminPageEncrypt.html";
                     }
                 } else {
                     alert("No user data found. Access denied.");
-                    window.location.href = "./userPage.html";
+                    window.location.href = "./adminPageEncrypt.html";
                 }
             } else {
                 alert("Not authenticated. Redirecting to login.");
-                window.location.href = "./userPage.html";
+                window.location.href = "./adminPageEncrypt.html";
             }
         });
     </script>
