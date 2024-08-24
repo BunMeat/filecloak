@@ -63,13 +63,13 @@ document.getElementById('keyGenButton').addEventListener('click', function() {
   document.getElementById('keyGen').value = randomBytes.toString();
 });
 
-const textarea = document.getElementById('textarea');
+const keyGenLength = document.getElementById('keyGen');
 const counter = document.getElementById('counter');
 
-textarea.addEventListener('input', updateCounter);
+keyGen.addEventListener('input', updateCounter);
 
 function updateCounter() {
-  const currentLength = textarea.value.length;
+  const currentLength = keyGenLength.value.length;
   const maxLength = parseInt(textarea.getAttribute('maxlength'));
   
   counter.textContent = currentLength;
