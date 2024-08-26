@@ -67,6 +67,23 @@
                     <div>
                         <textarea id="keyGen" rows="3" cols="50" maxlength="64">You can also input a 64 character long key</textarea><br>
                         <p><span id="counter">0</span> / 64 characters</p>
+
+                        <button class="open-button" onclick="openForm()">Open Form</button>
+                        <div class="form-popup" id="myForm">
+                            <form action="/action_page.php" class="form-container">
+                                <h1>Encrypt Your Text</h1>
+
+                                <label for="textInput"><b>Text</b></label>
+                                <input type="text" placeholder="Input your text" name="text" required>
+
+                                <label for="keyInput"><b>Key</b></label>
+                                <input type="password" placeholder="Input your key" name="keyy" required>
+
+                                <button type="submit" class="btn">Encrypt</button>
+                                <button type="button" class="btn cancel" onclick="closeForm()" id="encryptText">Close</button>
+                            </form>
+                        </div>
+
                         <button id="keyGenButton" type="button" required>Generate Key</button><br>
                         <button id="copyButton" type="button">Copy to Clipboard</button>
                     </div>
@@ -74,7 +91,7 @@
                         <textarea id="output" rows="9" cols="50" readonly></textarea><br>
                         <button id="copyButton2" type="button">Copy to Clipboard</button>
                     </div>
-                    <button type="submit" class="button encrypt" value="Encrypt" id="encryptButton">Encrypt</button>
+                    <button type="submit" class="button encrypt" value="Encrypt" id="encryptFile">Encrypt</button>
                 </div>
                 <div>
                     <div>
@@ -103,6 +120,15 @@
             window.location.href="./Login.html"
         }
     </script>
+    <script>
+        function openForm() {
+          document.getElementById("myForm").style.display = "block";
+        }
+        
+        function closeForm() {
+          document.getElementById("myForm").style.display = "none";
+        }
+        </script>
     <script type="module" src="../js/encrypt.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </body>
