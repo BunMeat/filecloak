@@ -1,11 +1,19 @@
 const encryptForm = document.getElementById('encryptForm');
 
 function encrypt(text, key) {
-  const encryptKey = CryptoJS.enc.Utf8.parse(key); 
+  if (key.length !== 32) {
+    throw new Error('Invalid key length. Key must be 32 characters long.');
+  }
+
+  const encryptKey = CryptoJS.enc.Utf8.parse(key);
   const encryptIV = CryptoJS.lib.WordArray.random(16);
+
   const encrypted = CryptoJS.AES.encrypt(text, encryptKey, { iv: encryptIV }).toString();
-  return encrypted + encryptIV.toString(CryptoJS.enc.Base64);
+  
+  // Concatenate the IV in Base64 format with the encrypted text
+  return encrypted + ':' + encryptIV.toString(CryptoJS.enc.Base64);
 }
+
 
 function copyTokenToClipboard(text) {
   navigator.clipboard.writeText(text)
@@ -40,8 +48,8 @@ document.getElementById('copyButton2').addEventListener('click', function() {
 });
 
 document.getElementById('keyGenButton').addEventListener('click', function() {
-  const randomBytes = CryptoJS.lib.WordArray.random(32);
-  document.getElementById('keyGen').value = randomBytes.toString();
+  const randomBytes = CryptoJS.lib.WordArray.random(32); 
+  document.getElementById('keyGen').value = randomBytes.toString(CryptoJS.enc.Hex).slice(0, 32);
 });
 
 const keyGenLength = document.getElementById('keyGen');
@@ -64,8 +72,9 @@ function updateCounter() {
 
 encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const text = document.getElementById('textToEncrypt').toString;
-  const key = document.getElementById('keyGen').value;
+  
+  const text = document.getElementById('textToEncrypt').value;  // Use .value to get the text
+  const key = document.getElementById('keyGen').value.trim();
 
   if (!key) {
     alert('Please generate or provide an encryption key before proceeding.');
@@ -73,12 +82,11 @@ encryptForm.addEventListener('submit', async (e) => {
   }
 
   try {
-
     const encryptedText = encrypt(text, key);
     document.getElementById('output').value = encryptedText;
 
   } catch (error) {
-    console.error('Upload failed', error);
-    alert('Upload failed: ' + error.message);
+    console.error('Encryption failed', error);
+    alert('Encryption failed: ' + error.message);
   }
 });
