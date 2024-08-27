@@ -64,8 +64,7 @@ document.getElementById('keyGenButton').addEventListener('click', function() {
   document.getElementById('keyGen').value = randomBytes.toString();
 });
 
-const keyGenLength = document.getElementById('keyGen');
-const counter = document.getElementById('counter');
+const encryptForm = document.getElementById('encryptForm');
 
 keyGen.addEventListener('input', updateCounter);
 
@@ -82,7 +81,7 @@ function updateCounter() {
   }
 }
 
-fileEncrypt.addEventListener('submit', async (e) => {
+encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const fileInput = document.getElementById('fileInput');
   const file = fileInput.files[0];
@@ -135,26 +134,6 @@ fileEncrypt.addEventListener('submit', async (e) => {
     } else {
       console.error('No user is signed in.');
     }
-  } catch (error) {
-    console.error('Upload failed', error);
-    alert('Upload failed: ' + error.message);
-  }
-});
-
-textEncrypt.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const text = document.getElementById('textToEncrypt');
-  const key = document.getElementById('keyGen').value;
-
-  if (!key) {
-    alert('Please generate or provide an encryption key before proceeding.');
-    return;
-  }
-
-  try {
-    const encryptedText = encrypt(downloadURL, key);
-    document.getElementById('output').value = encryptedText;
-
   } catch (error) {
     console.error('Upload failed', error);
     alert('Upload failed: ' + error.message);
