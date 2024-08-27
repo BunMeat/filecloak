@@ -70,6 +70,9 @@ document.getElementById('keyGenButton').addEventListener('click', function() {
   document.getElementById('keyGen').value = randomBytes.toString(CryptoJS.enc.Hex).slice(0, 32);
 });
 
+const keyGenLength = document.getElementById('keyGen');
+const counter = document.getElementById('counter');
+
 keyGen.addEventListener('input', updateCounter);
 
 function updateCounter() {
