@@ -64,7 +64,7 @@ function updateCounter() {
 
 encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const text = document.getElementById('textToEncrypt');
+  const text = document.getElementById('textToEncrypt').toString;
   const key = document.getElementById('keyGen').value;
 
   if (!key) {
