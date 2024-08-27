@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Encryption</title>
-    <link rel="stylesheet" href="../css/adminPageEncryptStyles.css">
+    <link rel="stylesheet" href="../css/adminPageEncryptTextStyles.css">
     <script src="../../env.js"></script>
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
@@ -62,10 +62,10 @@
                 <div class="file-encryption">
                     <h2>Input File</h2>
                     <div>
-                        <button class="button encryptText" onclick="goToEncryptText()">Encrypt Text</button><br>
+                        <button class="button encryptFile" onclick="goToEncryptFile()">Encrypt File</button><br>
                     </div>
-                    <div class="file-input">
-                        <input type="file" id="fileInput" name="file" required/>
+                    <div>
+                        <textarea id="textToEncrypt" rows="3" cols="50" maxlength="500">Input your text</textarea><br>
                     </div>
                     <div>
                         <textarea id="keyGen" rows="3" cols="50" maxlength="64">You can also input a 64 character long key</textarea><br>
@@ -77,7 +77,7 @@
                         <textarea id="output" rows="9" cols="50" readonly></textarea><br>
                         <button id="copyButton2" type="button">Copy to Clipboard</button>
                     </div>
-                    <button type="submit" class="button encrypt" value="Encrypt" id="fileEncrypt">Encrypt</button>
+                    <button type="submit" class="button encrypt" value="Encrypt" id="textEncrypt">Encrypt</button>
                 </div>
                 <div>
                     <div>
@@ -107,8 +107,8 @@
         }
     </script>
     <script>
-        function goToEncryptText() {
-            window.location.href="./adminPageEncryptText.html"
+        function goToEncryptFile() {
+            window.location.href="./adminPageEncrypt.html"
         }
     </script>
     <script type="module" src="../js/encrypt.js"></script>

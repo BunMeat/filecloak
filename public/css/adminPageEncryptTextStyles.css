@@ -53,16 +53,6 @@ h2 {
     color: #333;
 }
 
-.file-input{
-    border: 2px dashed #ccc;
-    height: 143px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-    position: relative;
-}
-
 .file-output {
     border: 2px dashed #ccc;
     height: 100px;
@@ -71,11 +61,6 @@ h2 {
     justify-content: center;
     margin-bottom: 10px;
     position: relative;
-}
-
-.file-input p, .file-output p {
-    width: 100%;
-    text-align: center;
 }
 
 input[type="text"], input[type="file"] {
@@ -104,8 +89,8 @@ input[type="text"], input[type="file"] {
     background-color: #f44336;
 }
 
-.encryptText {
-    background-color: dimgray;
+.encryptFile {
+    background-color:dimgray ;
 }
 
 .list {
