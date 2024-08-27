@@ -73,7 +73,8 @@ encryptForm.addEventListener('submit', async (e) => {
   }
 
   try {
-    const encryptedText = encrypt(downloadURL, key);
+
+    const encryptedText = encrypt(text, key);
     document.getElementById('output').value = encryptedText;
 
   } catch (error) {
