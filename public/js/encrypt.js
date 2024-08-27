@@ -17,7 +17,8 @@ const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 
-const encryptForm = document.getElementById('encryptForm');
+const fileEncrypt = document.getElementById('fileEncrypt');
+const textEncrypt = document.getElementById('textEncrypt');
 
 function encrypt(text, key) {
   const encryptKey = CryptoJS.enc.Utf8.parse(key); 
