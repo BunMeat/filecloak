@@ -17,7 +17,7 @@ const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 
-const encryptForm = document.getElementById('encrypt');
+const encryptForm = document.getElementById('encryptForm');
 
 function encrypt(text, key) {
   if (key.length !== 32) {
