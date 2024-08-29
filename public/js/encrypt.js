@@ -3,6 +3,7 @@ import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-aut
 import { getFirestore, collection, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
 
+//firebase
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
   authDomain: window.env.FIREBASEAUTHDOMAIN,
@@ -19,6 +20,7 @@ const storage = getStorage(firebaseApp);
 
 const encryptForm = document.getElementById('encryptForm');
 
+//encrypt function
 function encrypt(text, key) {
   if (key.length !== 32) {
     throw new Error('Invalid key length. Key must be 32 characters long.');
@@ -33,6 +35,7 @@ function encrypt(text, key) {
   return encrypted + ':' + encryptIV.toString(CryptoJS.enc.Base64);
 }
 
+//copy to clipboard
 function copyTokenToClipboard(text) {
   navigator.clipboard.writeText(text)
       .then(() => {
@@ -55,6 +58,7 @@ function copyKeyToClipboard(text) {
   });
 }
 
+//copy button call
 document.getElementById('copyButton').addEventListener('click', function() {
   const keyGenerated = document.getElementById('keyGen').value;
   copyKeyToClipboard(keyGenerated);
@@ -65,6 +69,7 @@ document.getElementById('copyButton2').addEventListener('click', function() {
   copyTokenToClipboard(encryptedText);
 });
 
+//generate key
 document.getElementById('keyGenButton').addEventListener('click', function() {
   const randomBytes = CryptoJS.lib.WordArray.random(32); 
   document.getElementById('keyGen').value = randomBytes.toString(CryptoJS.enc.Hex).slice(0, 32);
@@ -75,6 +80,7 @@ const counter = document.getElementById('counter');
 
 keyGen.addEventListener('input', updateCounter);
 
+//update char count
 function updateCounter() {
   const currentLength = keyGenLength.value.length;
   const maxLength = parseInt(keyGenLength.getAttribute('maxlength'));
@@ -88,6 +94,7 @@ function updateCounter() {
   }
 }
 
+//encrypt form
 encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const fileInput = document.getElementById('fileInput');
@@ -106,21 +113,24 @@ encryptForm.addEventListener('submit', async (e) => {
       let mimeType;
 
       if (zipFilesCheckbox) {
-          // Create a zip file if checkbox is checked
+          //create a zip file if checkbox is checked
           const zip = new JSZip();
           for (let file of files) {
-              zip.file(file.name, file); // Make sure files are added correctly to the zip
+              zip.file(file.name, file); //make sure files are added correctly to the zip
           }
 
-          // Generate zip content as a Blob
+          //generate zip content as a Blob
           const zipContent = await zip.generateAsync({ type: 'blob' });
 
-          // Create a new Blob with the correct MIME type
+          //create new blob with the correct MIME type
           fileToUpload = new Blob([zipContent], { type: 'application/x-zip-compressed' });
           fileName = 'files_' + new Date().toISOString().replace(/[:.]/g, '-') + '.zip';
           mimeType = 'application/x-zip-compressed';
+          console.log("fileToUpload", fileToUpload);
+          console.log("fileName", fileName);
+          console.log("mimeType", mimeType);
       } else {
-          // Otherwise, just take the first file
+          //take the first file
           fileToUpload = files[0];
           fileName = fileToUpload.name;
           mimeType = fileToUpload.type;
@@ -138,22 +148,25 @@ encryptForm.addEventListener('submit', async (e) => {
       };
       const formattedDatetime = new Intl.DateTimeFormat('en-GB', options).format(currentDatetime);
       const storageRef = ref(storage, 'uploads/' + fileName + '-' + formattedDatetime.replace(/[:\s]/g, '-'));
+      console.log("storageRef", storageRef);
 
-      // Set metadata with the correct content type
+      //set metadata with the correct content type
       const metadata = {
           contentType: mimeType,
       };
 
-      // Upload file (or zip) with metadata
+      console.log("metadata", metadata);
+
+      //upload file/zip with metadata
       const snapshot = await uploadBytes(storageRef, fileToUpload, metadata);
       console.log('Uploaded a blob or file!', snapshot);
 
-      // Get download URL
+      //get download URL
       const downloadURL = await getDownloadURL(snapshot.ref);
       const encryptedLink = encrypt(downloadURL, key);
       document.getElementById('output').value = encryptedLink;
 
-      // Save file data to Firestore
+      //save file data to Firestore
       const user = auth.currentUser;
       if (user) {
           const userCollection = collection(firestore, "users");
