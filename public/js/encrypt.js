@@ -91,58 +91,77 @@ function updateCounter() {
 encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const fileInput = document.getElementById('fileInput');
-  const file = fileInput.files[0];
+  const files = fileInput.files;
   const key = document.getElementById('keyGen').value.trim();
+  const zipFilesCheckbox = document.getElementById('zipFilesCheckbox').checked;
 
   if (!key) {
-    alert('Please generate or provide an encryption key before proceeding.');
-    return;
+      alert('Please generate or provide an encryption key before proceeding.');
+      return;
   }
 
-  const currentDatetime = new Date();
-  const options = { 
-    timeZone: 'Asia/Jakarta', 
-    year: 'numeric', 
-    month: '2-digit', 
-    day: '2-digit', 
-    hour: '2-digit', 
-    minute: '2-digit', 
-    second: '2-digit' 
-  };
-  const formattedDatetime = new Intl.DateTimeFormat('en-GB', options).format(currentDatetime);
-  const storageRef = ref(storage, 'uploads/' + file.name + '-' + formattedDatetime.replace(/[:\s]/g, '-'));
-
   try {
-    // Upload file
-    const snapshot = await uploadBytes(storageRef, file);
-    console.log('Uploaded a blob or file!', snapshot);
+      let fileToUpload;
+      let fileName;
 
-    // Get download URL
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    const encryptedLink = encrypt(downloadURL, key);
-    document.getElementById('output').value = encryptedLink;
+      if (zipFilesCheckbox) {
+          // Create a zip file if checkbox is checked
+          const zip = new JSZip();
+          for (let file of files) {
+              zip.file(file.name, file);
+          }
+          const zipContent = await zip.generateAsync({ type: 'blob' });
+          fileToUpload = zipContent;
+          fileName = 'files_' + new Date().toISOString().replace(/[:.]/g, '-') + '.zip';
+      } else {
+          // Otherwise, just take the first file
+          fileToUpload = files[0];
+          fileName = fileToUpload.name;
+      }
 
-    // Get the current user
-    const user = auth.currentUser;
-    if (user) {
-      const userCollection = collection(firestore, "users");
-      const userRefDoc = doc(userCollection, user.uid);
-      const filesSubCollection = collection(userRefDoc, "files");
-      const fileDocRef = doc(filesSubCollection);
-
-      const fileData = {
-        timestamp: formattedDatetime,
-        url: downloadURL,
-        encryptUrl: encryptedLink
+      const currentDatetime = new Date();
+      const options = {
+          timeZone: 'Asia/Jakarta',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
       };
+      const formattedDatetime = new Intl.DateTimeFormat('en-GB', options).format(currentDatetime);
+      const storageRef = ref(storage, 'uploads/' + fileName + '-' + formattedDatetime.replace(/[:\s]/g, '-'));
 
-      await setDoc(fileDocRef, fileData);
-      console.log('File data saved to Firestore:', fileData);
-    } else {
-      console.error('No user is signed in.');
-    }
+      // Upload file (or zip)
+      const snapshot = await uploadBytes(storageRef, fileToUpload);
+      console.log('Uploaded a blob or file!', snapshot);
+
+      // Get download URL
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      const encryptedLink = encrypt(downloadURL, key);
+      document.getElementById('output').value = encryptedLink;
+
+      // Save file data to Firestore (similar to your current logic)
+      const user = auth.currentUser;
+      if (user) {
+          const userCollection = collection(firestore, "users");
+          const userRefDoc = doc(userCollection, user.uid);
+          const filesSubCollection = collection(userRefDoc, "files");
+          const fileDocRef = doc(filesSubCollection);
+
+          const fileData = {
+              timestamp: formattedDatetime,
+              url: downloadURL,
+              encryptUrl: encryptedLink
+          };
+
+          await setDoc(fileDocRef, fileData);
+          console.log('File data saved to Firestore:', fileData);
+      } else {
+          console.error('No user is signed in.');
+      }
   } catch (error) {
-    console.error('Upload failed', error);
-    alert('Upload failed: ' + error.message);
+      console.error('Upload failed', error);
+      alert('Upload failed: ' + error.message);
   }
 });

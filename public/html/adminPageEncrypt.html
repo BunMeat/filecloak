@@ -65,8 +65,13 @@
                         <button type="button" class="button encryptText" onclick="goToEncryptText()">Encrypt Text</button><br>
                     </div>
                     <div class="file-input">
-                        <input type="file" id="fileInput" name="file" required/>
+                        <input type="file" id="fileInput" name="file" multiple required />
+                        <label>
+                            <input type="checkbox" id="zipFilesCheckbox" />
+                            Zip files before uploading
+                        </label>
                     </div>
+                    
                     <div>
                         <textarea id="keyGen" rows="3" cols="50" maxlength="32">You can also input a 32 character long key</textarea><br>
                         <p><span id="counter">0</span> / 32 characters</p>
@@ -112,6 +117,7 @@
         }
     </script>
     <script type="module" src="../js/encrypt.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </body>
 </html>
