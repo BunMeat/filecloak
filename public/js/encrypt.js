@@ -116,9 +116,9 @@ encryptForm.addEventListener('submit', async (e) => {
           const zipContent = await zip.generateAsync({ type: 'blob' });
 
           // Create a new Blob with the correct MIME type
-          fileToUpload = new Blob([zipContent], { type: 'application/zip' });
+          fileToUpload = new Blob([zipContent], { type: 'application/x-zip-compressed' });
           fileName = 'files_' + new Date().toISOString().replace(/[:.]/g, '-') + '.zip';
-          mimeType = 'application/zip';
+          mimeType = 'application/x-zip-compressed';
       } else {
           // Otherwise, just take the first file
           fileToUpload = files[0];
