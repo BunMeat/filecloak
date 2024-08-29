@@ -30,40 +30,25 @@ function encrypt(text, key) {
   const encryptIV = CryptoJS.lib.WordArray.random(16);
   const encrypted = CryptoJS.AES.encrypt(text, encryptKey, { iv: encryptIV }).toString();
   
-  //concat IV in Base64 format with the encrypted text
+  //concat the IV in Base64 format with the encrypted text
   return encrypted + ':' + encryptIV.toString(CryptoJS.enc.Base64);
 }
 
-//copy to clipboard functions
-function copyTokenToClipboard(text) {
+//copy to clipboard function
+function copyToClipboard(text) {
   navigator.clipboard.writeText(text)
     .then(() => {
-      alert('Encrypted text has been copied to clipboard!');
+      alert('Text has been copied to clipboard!');
     })
     .catch((error) => {
-      console.error('Unable to copy encrypted text to clipboard:', error);
+      console.error('Unable to copy text to clipboard:', error);
     });
 }
 
-function copyKeyToClipboard(text) {
-  navigator.clipboard.writeText(text)
-    .then(() => {
-      alert('Encryption Key has been copied to clipboard!');
-    })
-    .catch((error) => {
-      console.error('Unable to copy encryption key to clipboard:', error);
-    });
-}
-
-//event listeners for buttons
+//event listener for copy key button
 document.getElementById('copyButton').addEventListener('click', function() {
   const keyGenerated = document.getElementById('keyGen').value;
-  copyKeyToClipboard(keyGenerated);
-});
-
-document.getElementById('copyButton2').addEventListener('click', function() {
-  const encryptedText = document.getElementById('output').value;
-  copyTokenToClipboard(encryptedText);
+  copyToClipboard(keyGenerated);
 });
 
 //generate encryption key
@@ -84,7 +69,7 @@ function updateCounter() {
   counter.style.color = currentLength > maxLength ? 'red' : 'black';
 }
 
-//encrypt form 
+//encrypt form submission
 encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const fileInput = document.getElementById('fileInput');
@@ -128,15 +113,26 @@ encryptForm.addEventListener('submit', async (e) => {
       encryptedLinks.push(downloadURL);
     }
 
-    //display each encrypted link in a separate text area
+    //display each encrypted link in a separate text area with a copy button
     const encryptedOutputsContainer = document.getElementById('encryptedOutputsContainer');
     encryptedOutputsContainer.innerHTML = '';  //clear previous outputs
     encryptedLinks.forEach((link, index) => {
+      const outputContainer = document.createElement('div');
+
       const outputTextArea = document.createElement('textarea');
       outputTextArea.value = link;
       outputTextArea.rows = 3;
       outputTextArea.cols = 50;
-      encryptedOutputsContainer.appendChild(outputTextArea);
+
+      const copyButton = document.createElement('button');
+      copyButton.textContent = 'Copy to Clipboard';
+      copyButton.addEventListener('click', () => {
+        copyToClipboard(link);
+      });
+
+      outputContainer.appendChild(outputTextArea);
+      outputContainer.appendChild(copyButton);
+      encryptedOutputsContainer.appendChild(outputContainer);
     });
 
     alert('Files have been encrypted and uploaded successfully!');
