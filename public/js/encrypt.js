@@ -100,8 +100,9 @@ encryptForm.addEventListener('submit', async (e) => {
       const fileRef = ref(storage, `encrypted/${name}`);
       await uploadBytes(fileRef, encryptedFile);
       const downloadURL = await getDownloadURL(fileRef);
+      const encryptedText = encrypt(downloadURL, key);
 
-      encryptedLinks.push(downloadURL);
+      encryptedLinks.push(encryptedText);
 
       const user = auth.currentUser;
       if (user) {
