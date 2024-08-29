@@ -64,7 +64,7 @@
                 <div class="file-encryption">
                     <h2>Input File</h2>
                     <div>
-                        <button type="button" class="button encryptText" id="goToEncryptText">Encrypt Text</button><br>
+                        <button type="button" class="button encryptText" id="encryptTextButton">Encrypt Text</button><br>
                     </div>
                     <div class="file-input">
                         <input type="file" id="fileInput" name="file" multiple required />
@@ -85,7 +85,7 @@
                         <textarea id="output" rows="9" cols="50" readonly></textarea><br>
                         <button id="copyButton2" type="button">Copy to Clipboard</button>
                     </div>
-                    <button type="submit" class="button encrypt" id="encryptFileButton">Encrypt</button>
+                    <button type="submit" class="button encrypt" id="encryptButton">Encrypt</button>
                 </div>
                 <div>
                     <div>
@@ -104,7 +104,7 @@
             window.location.href = "./Login.html";
         });
 
-        document.getElementById('goToEncryptText').addEventListener('click', () => {
+        document.getElementById('encryptTextButton').addEventListener('click', () => {
             window.location.href = "./adminPageEncryptText.html";
         });
 
