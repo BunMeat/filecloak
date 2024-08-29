@@ -3,7 +3,6 @@ import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-aut
 import { getFirestore, collection, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
 
-//initialize Firebase
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
   authDomain: window.env.FIREBASEAUTHDOMAIN,
@@ -20,7 +19,6 @@ const storage = getStorage(firebaseApp);
 
 const encryptForm = document.getElementById('encryptForm');
 
-//encrypt function
 function encrypt(text, key) {
   if (key.length !== 32) {
     throw new Error('Invalid key length. Key must be 32 characters long.');
@@ -30,11 +28,9 @@ function encrypt(text, key) {
   const encryptIV = CryptoJS.lib.WordArray.random(16);
   const encrypted = CryptoJS.AES.encrypt(text, encryptKey, { iv: encryptIV }).toString();
   
-  //concat the IV in Base64 format with the encrypted text
   return encrypted + ':' + encryptIV.toString(CryptoJS.enc.Base64);
 }
 
-//copy to clipboard function
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text)
     .then(() => {
@@ -45,13 +41,11 @@ function copyToClipboard(text) {
     });
 }
 
-//event listener for copy key button
 document.getElementById('copyButton').addEventListener('click', function() {
   const keyGenerated = document.getElementById('keyGen').value;
   copyToClipboard(keyGenerated);
 });
 
-//generate encryption key
 document.getElementById('keyGenButton').addEventListener('click', function() {
   const randomBytes = CryptoJS.lib.WordArray.random(32); 
   document.getElementById('keyGen').value = randomBytes.toString(CryptoJS.enc.Hex).slice(0, 32);
@@ -69,7 +63,6 @@ function updateCounter() {
   counter.style.color = currentLength > maxLength ? 'red' : 'black';
 }
 
-//encrypt form submission
 encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const fileInput = document.getElementById('fileInput');
@@ -87,7 +80,6 @@ encryptForm.addEventListener('submit', async (e) => {
     return;
   }
 
-  //generate zip file if the checkbox is checked
   let uploadFiles = [];
   if (zipFilesCheckbox) {
     const zip = new JSZip();
@@ -109,13 +101,23 @@ encryptForm.addEventListener('submit', async (e) => {
       await uploadBytes(fileRef, encryptedFile);
       const downloadURL = await getDownloadURL(fileRef);
 
-      //push the download URL to encryptedLinks
       encryptedLinks.push(downloadURL);
+
+      const user = auth.currentUser;
+      if (user) {
+        const fileMetadata = {
+          userId: user.uid,
+          fileName: name,
+          downloadURL: downloadURL,
+          uploadedAt: new Date(),
+        };
+
+        await setDoc(doc(collection(firestore, 'encryptedFiles')), fileMetadata);
+      }
     }
 
-    //display each encrypted link in a separate text area with a copy button
     const encryptedOutputsContainer = document.getElementById('encryptedOutputsContainer');
-    encryptedOutputsContainer.innerHTML = '';  //clear previous outputs
+    encryptedOutputsContainer.innerHTML = '';
     encryptedLinks.forEach((link, index) => {
       const outputContainer = document.createElement('div');
 
@@ -132,10 +134,12 @@ encryptForm.addEventListener('submit', async (e) => {
 
       outputContainer.appendChild(outputTextArea);
       outputContainer.appendChild(copyButton);
+      outputContainer.style.marginBottom = '15px';
+
       encryptedOutputsContainer.appendChild(outputContainer);
     });
 
-    alert('Files have been encrypted and uploaded successfully!');
+    alert('Files have been encrypted, uploaded, and metadata stored successfully!');
   } catch (error) {
     console.error('An error occurred during the encryption or upload process:', error);
     alert('An error occurred. Please try again.');
