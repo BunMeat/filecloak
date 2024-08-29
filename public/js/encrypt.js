@@ -121,6 +121,8 @@ encryptForm.addEventListener('submit', async (e) => {
     encryptedLinks.forEach((link, index) => {
       const outputContainer = document.createElement('div');
 
+      outputContainer.style.marginTop = '15px';
+
       const outputTextArea = document.createElement('textarea');
       outputTextArea.value = link;
       outputTextArea.rows = 3;
@@ -134,10 +136,11 @@ encryptForm.addEventListener('submit', async (e) => {
 
       outputContainer.appendChild(outputTextArea);
       outputContainer.appendChild(copyButton);
-      outputContainer.style.marginBottom = '15px';
 
       encryptedOutputsContainer.appendChild(outputContainer);
     });
+
+    encryptedOutputsContainer.style.marginBottom = '15px';
 
     alert('Files have been encrypted, uploaded, and metadata stored successfully!');
   } catch (error) {
