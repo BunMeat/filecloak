@@ -103,12 +103,13 @@ encryptForm.addEventListener('submit', async (e) => {
   try {
       let fileToUpload;
       let fileName;
+      let mimeType;
 
       if (zipFilesCheckbox) {
           // Create a zip file if checkbox is checked
           const zip = new JSZip();
           for (let file of files) {
-              zip.file(file.name, file);
+              zip.file(file.name, file); // Make sure files are added correctly to the zip
           }
 
           // Generate zip content as a Blob
@@ -117,10 +118,12 @@ encryptForm.addEventListener('submit', async (e) => {
           // Create a new Blob with the correct MIME type
           fileToUpload = new Blob([zipContent], { type: 'application/zip' });
           fileName = 'files_' + new Date().toISOString().replace(/[:.]/g, '-') + '.zip';
+          mimeType = 'application/zip';
       } else {
           // Otherwise, just take the first file
           fileToUpload = files[0];
           fileName = fileToUpload.name;
+          mimeType = fileToUpload.type;
       }
 
       const currentDatetime = new Date();
@@ -138,7 +141,7 @@ encryptForm.addEventListener('submit', async (e) => {
 
       // Set metadata with the correct content type
       const metadata = {
-          contentType: zipFilesCheckbox ? 'application/zip' : fileToUpload.type,
+          contentType: mimeType,
       };
 
       // Upload file (or zip) with metadata
@@ -150,7 +153,7 @@ encryptForm.addEventListener('submit', async (e) => {
       const encryptedLink = encrypt(downloadURL, key);
       document.getElementById('output').value = encryptedLink;
 
-      // Save file data to Firestore (similar to your current logic)
+      // Save file data to Firestore
       const user = auth.currentUser;
       if (user) {
           const userCollection = collection(firestore, "users");
