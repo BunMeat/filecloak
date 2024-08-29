@@ -3,7 +3,7 @@ import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-aut
 import { getFirestore, collection, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
 
-// Initialize Firebase
+//initialize Firebase
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
   authDomain: window.env.FIREBASEAUTHDOMAIN,
@@ -20,7 +20,7 @@ const storage = getStorage(firebaseApp);
 
 const encryptForm = document.getElementById('encryptForm');
 
-// Encrypt function
+//encrypt function
 function encrypt(text, key) {
   if (key.length !== 32) {
     throw new Error('Invalid key length. Key must be 32 characters long.');
@@ -30,11 +30,11 @@ function encrypt(text, key) {
   const encryptIV = CryptoJS.lib.WordArray.random(16);
   const encrypted = CryptoJS.AES.encrypt(text, encryptKey, { iv: encryptIV }).toString();
   
-  // Concatenate the IV in Base64 format with the encrypted text
+  //concat IV in Base64 format with the encrypted text
   return encrypted + ':' + encryptIV.toString(CryptoJS.enc.Base64);
 }
 
-// Copy to clipboard functions
+//copy to clipboard functions
 function copyTokenToClipboard(text) {
   navigator.clipboard.writeText(text)
     .then(() => {
@@ -55,7 +55,7 @@ function copyKeyToClipboard(text) {
     });
 }
 
-// Event listeners for buttons
+//event listeners for buttons
 document.getElementById('copyButton').addEventListener('click', function() {
   const keyGenerated = document.getElementById('keyGen').value;
   copyKeyToClipboard(keyGenerated);
@@ -66,7 +66,7 @@ document.getElementById('copyButton2').addEventListener('click', function() {
   copyTokenToClipboard(encryptedText);
 });
 
-// Generate encryption key
+//generate encryption key
 document.getElementById('keyGenButton').addEventListener('click', function() {
   const randomBytes = CryptoJS.lib.WordArray.random(32); 
   document.getElementById('keyGen').value = randomBytes.toString(CryptoJS.enc.Hex).slice(0, 32);
@@ -84,7 +84,7 @@ function updateCounter() {
   counter.style.color = currentLength > maxLength ? 'red' : 'black';
 }
 
-// Encrypt form submission
+//encrypt form 
 encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const fileInput = document.getElementById('fileInput');
@@ -93,75 +93,55 @@ encryptForm.addEventListener('submit', async (e) => {
   const zipFilesCheckbox = document.getElementById('zipFilesCheckbox').checked;
 
   if (!key) {
-    alert('Please generate or provide an encryption key before proceeding.');
+    alert('Please provide a valid 32-character encryption key.');
     return;
   }
 
+  if (files.length === 0) {
+    alert('Please select at least one file to upload.');
+    return;
+  }
+
+  //generate zip file if the checkbox is checked
+  let uploadFiles = [];
+  if (zipFilesCheckbox) {
+    const zip = new JSZip();
+    for (const file of files) {
+      zip.file(file.name, file);
+    }
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    uploadFiles = [{ name: 'encrypted_files.zip', file: zipBlob }];
+  } else {
+    uploadFiles = Array.from(files).map(file => ({ name: file.name, file }));
+  }
+
   try {
-    let encryptedFilesData = [];
-    for (let file of files) {
-      let fileToUpload;
-      let fileName;
-      let mimeType;
+    const encryptedLinks = [];
 
-      if (zipFilesCheckbox) {
-        // Create a zip file if checkbox is checked
-        const zip = new JSZip();
-        zip.file(file.name, file);
+    for (const { name, file } of uploadFiles) {
+      const encryptedFile = new Blob([encrypt(await file.text(), key)], { type: file.type });
+      const fileRef = ref(storage, `encrypted/${name}`);
+      await uploadBytes(fileRef, encryptedFile);
+      const downloadURL = await getDownloadURL(fileRef);
 
-        // Generate zip content as a Blob
-        const zipContent = await zip.generateAsync({ type: 'blob' });
-
-        // Create a new Blob with the correct MIME type
-        fileToUpload = new Blob([zipContent], { type: 'application/x-zip-compressed' });
-        fileName = 'files_' + new Date().toISOString().replace(/[:.]/g, '-') + '.zip';
-        mimeType = 'application/x-zip-compressed';
-      } else {
-        // Encrypt individual files
-        fileToUpload = file;
-        fileName = fileToUpload.name;
-        mimeType = fileToUpload.type;
-      }
-
-      const storageRef = ref(storage, 'uploads/' + fileName);
-      const metadata = { contentType: mimeType };
-
-      // Upload file (or zip) with metadata
-      const snapshot = await uploadBytes(storageRef, fileToUpload, metadata);
-      console.log('Uploaded a blob or file!', snapshot);
-
-      // Get download URL
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      const encryptedLink = encrypt(downloadURL, key);
-      
-      // Add to encryptedFilesData array
-      encryptedFilesData.push({ fileName, encryptedLink });
-
-      document.getElementById('output').value += `File: ${fileName}, Encrypted URL: ${encryptedLink}\n`;
+      //push the download URL to encryptedLinks
+      encryptedLinks.push(downloadURL);
     }
 
-    // Save files data to Firestore for each file
-    const user = auth.currentUser;
-    if (user) {
-      const userCollection = collection(firestore, "users");
-      const userRefDoc = doc(userCollection, user.uid);
-      const filesSubCollection = collection(userRefDoc, "files");
+    //display each encrypted link in a separate text area
+    const encryptedOutputsContainer = document.getElementById('encryptedOutputsContainer');
+    encryptedOutputsContainer.innerHTML = '';  //clear previous outputs
+    encryptedLinks.forEach((link, index) => {
+      const outputTextArea = document.createElement('textarea');
+      outputTextArea.value = link;
+      outputTextArea.rows = 3;
+      outputTextArea.cols = 50;
+      encryptedOutputsContainer.appendChild(outputTextArea);
+    });
 
-      for (let fileData of encryptedFilesData) {
-        const fileDocRef = doc(filesSubCollection);
-
-        await setDoc(fileDocRef, {
-          timestamp: new Date().toISOString(),
-          url: fileData.encryptedLink,
-          encryptUrl: fileData.encryptedLink
-        });
-        console.log('File data saved to Firestore:', fileData);
-      }
-    } else {
-      console.error('No user is signed in.');
-    }
+    alert('Files have been encrypted and uploaded successfully!');
   } catch (error) {
-    console.error('Upload failed', error);
-    alert('Upload failed: ' + error.message);
+    console.error('An error occurred during the encryption or upload process:', error);
+    alert('An error occurred. Please try again.');
   }
 });
