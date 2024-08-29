@@ -147,7 +147,7 @@ encryptForm.addEventListener('submit', async (e) => {
           second: '2-digit'
       };
       const formattedDatetime = new Intl.DateTimeFormat('en-GB', options).format(currentDatetime);
-      const storageRef = ref(storage, 'uploads/' + fileName + '-' + formattedDatetime.replace(/[:\s]/g, '-'));
+      const storageRef = ref(storage, 'uploads/' + fileName);
       console.log("storageRef", storageRef);
 
       //set metadata with the correct content type
