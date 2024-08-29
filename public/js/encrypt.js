@@ -39,7 +39,7 @@ function encrypt(text, key) {
 function copyTokenToClipboard(text) {
   navigator.clipboard.writeText(text)
       .then(() => {
-          console.log('Text copied to clipboard:', text);
+          ('Text copied to clipboard:', text);
           alert('Encrypted text has been copied to clipboard!');
       })
       .catch((error) => {
@@ -50,7 +50,7 @@ function copyTokenToClipboard(text) {
 function copyKeyToClipboard(text) {
   navigator.clipboard.writeText(text)
   .then(() => {
-      console.log('Text copied to clipboard:', text);
+      ('Text copied to clipboard:', text);
       alert('Encryption Key has been copied to clipboard!');
   })
   .catch((error) => {
@@ -126,9 +126,9 @@ encryptForm.addEventListener('submit', async (e) => {
           fileToUpload = new Blob([zipContent], { type: 'application/x-zip-compressed' });
           fileName = 'files_' + new Date().toISOString().replace(/[:.]/g, '-') + '.zip';
           mimeType = 'application/x-zip-compressed';
-          console.log("fileToUpload", fileToUpload);
-          console.log("fileName", fileName);
-          console.log("mimeType", mimeType);
+          ("fileToUpload", fileToUpload);
+          ("fileName", fileName);
+          ("mimeType", mimeType);
       } else {
           //take the first file
           fileToUpload = files[0];
@@ -148,18 +148,18 @@ encryptForm.addEventListener('submit', async (e) => {
       };
       const formattedDatetime = new Intl.DateTimeFormat('en-GB', options).format(currentDatetime);
       const storageRef = ref(storage, 'uploads/' + fileName);
-      console.log("storageRef", storageRef);
+      ("storageRef", storageRef);
 
       //set metadata with the correct content type
       const metadata = {
           contentType: mimeType,
       };
 
-      console.log("metadata", metadata);
+      ("metadata", metadata);
 
       //upload file/zip with metadata
       const snapshot = await uploadBytes(storageRef, fileToUpload, metadata);
-      console.log('Uploaded a blob or file!', snapshot);
+      ('Uploaded a blob or file!', snapshot);
 
       //get download URL
       const downloadURL = await getDownloadURL(snapshot.ref);
@@ -181,7 +181,7 @@ encryptForm.addEventListener('submit', async (e) => {
           };
 
           await setDoc(fileDocRef, fileData);
-          console.log('File data saved to Firestore:', fileData);
+          ('File data saved to Firestore:', fileData);
       } else {
           console.error('No user is signed in.');
       }

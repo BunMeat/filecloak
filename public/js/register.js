@@ -31,7 +31,7 @@ registrationForm.addEventListener('submit', async (e) => {
     } else {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      console.log('User registered:', user);
+      ('User registered:', user);
 
       const userCollection = collection(firestore, "users");
       const userId = user.uid;
@@ -43,7 +43,7 @@ registrationForm.addEventListener('submit', async (e) => {
       };
       await setDoc(userRefDoc, userData);
       alert("Pendaftaran User Berhasil, Silahkan Login");
-      console.log('User registered and data saved to Firestore:', user);
+      ('User registered and data saved to Firestore:', user);
     }
   } catch (error) {
     const errorCode = error.code;

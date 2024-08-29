@@ -44,8 +44,8 @@ loginForm.addEventListener('submit', async (e) => {
     if (errorCode === 'auth/invalid-credential') {
       alert("Email / Password Salah");
     } else {
-      console.log("errorMsg", errorMsg);
-      console.log("errorCode", errorCode);
+      ("errorMsg", errorMsg);
+      ("errorCode", errorCode);
       alert("Kesalahan Server", errorMsg);
     }
   }

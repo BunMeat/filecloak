@@ -18,7 +18,7 @@ function encrypt(text, key) {
 function copyTokenToClipboard(text) {
   navigator.clipboard.writeText(text)
       .then(() => {
-          console.log('Text copied to clipboard:', text);
+          ('Text copied to clipboard:', text);
           alert('Encrypted text has been copied to clipboard!');
       })
       .catch((error) => {
@@ -29,7 +29,7 @@ function copyTokenToClipboard(text) {
 function copyKeyToClipboard(text) {
   navigator.clipboard.writeText(text)
   .then(() => {
-      console.log('Text copied to clipboard:', text);
+      ('Text copied to clipboard:', text);
       alert('Encryption Key has been copied to clipboard!');
   })
   .catch((error) => {
