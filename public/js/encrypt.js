@@ -94,8 +94,8 @@ function updateCounter() {
   }
 }
 
-//encrypt form
-encryptForm.addEventListener('submit', async (e) => {
+//encrypt file
+document.getElementById('encryptFileButton').addEventListener('submit', async (e) => {
   e.preventDefault();
   const fileInput = document.getElementById('fileInput');
   const files = fileInput.files;
@@ -188,5 +188,27 @@ encryptForm.addEventListener('submit', async (e) => {
   } catch (error) {
       console.error('Upload failed', error);
       alert('Upload failed: ' + error.message);
+  }
+});
+
+//encrypt text
+document.getElementById('encryptTextButton').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const text = document.getElementById('textToEncrypt').value;
+  const key = document.getElementById('keyGen').value.trim();
+
+  if (!key) {
+    alert('Please generate or provide an encryption key before proceeding.');
+    return;
+  }
+
+  try {
+    const encryptedText = encrypt(text, key);
+    document.getElementById('output').value = encryptedText;
+
+  } catch (error) {
+    console.error('Encryption failed', error);
+    alert('Encryption failed: ' + error.message);
   }
 });

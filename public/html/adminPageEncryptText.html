@@ -52,7 +52,7 @@
 <body>
     <div class="container" id="encryptForm">
         <div class="logoutButton">
-            <button type="button" class="button logout" onclick="logOut()">Logout</button><br>
+            <button type="button" class="button logout" id="logoutButton">Logout</button><br>
         </div>
         <header>
             <img src="../asset/FileCloak.webp" alt="FileCloak Logo" class="logo">
@@ -62,7 +62,7 @@
                 <div class="file-encryption">
                     <h2>Input Text</h2>
                     <div>
-                        <button type="button" class="button encryptFile" onclick="goToEncryptFile()">Encrypt File</button><br>
+                        <button type="button" class="button encryptFile" id="goToEncryptFile">Encrypt File</button><br>
                     </div>
                     <div>
                         <textarea id="textToEncrypt" rows="3" cols="50" maxlength="500">Input your text</textarea><br>
@@ -77,41 +77,38 @@
                         <textarea id="output" rows="9" cols="50" readonly></textarea><br>
                         <button id="copyButton2" type="button">Copy to Clipboard</button>
                     </div>
-                    <button type="submit" class="button encrypt" value="Encrypt" id="encryptButton">Encrypt</button>
+                    <button type="submit" class="button encrypt" value="Encrypt" id="encryptTextButton">Encrypt</button>
                 </div>
                 <div>
                     <div>
-                        <button type="button" class="button decrypt" onclick="goToDecrypt()">Decrypt</button><br>
+                        <button type="button" class="button decrypt" id="decryptButton">Decrypt</button><br>
                     </div>
                     <br>
                     <div>
-                        <button type="button" class="button list" onclick="toggleForms()">Move to List</button><br>
+                        <button type="button" class="button list" id="listButton">Move to List</button><br>
                     </div>
                 </div>
             </div>
         </form>
     </div>
     <script>
-        function toggleForms() {
-            window.location.href="./dataList.html"
-        }
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            window.location.href = "./Login.html";
+        });
+
+        document.getElementById('goToEncryptFile').addEventListener('click', () => {
+            window.location.href = "./adminPageEncryptText.html";
+        });
+
+        document.getElementById('decryptButton').addEventListener('click', () => {
+            window.location.href = "./adminPageDecrypt.html";
+        });
+
+        document.getElementById('listButton').addEventListener('click', () => {
+            window.location.href = "./dataList.html";
+        });
     </script>
-    <script>
-        function goToDecrypt() {
-            window.location.href="./adminPageDecrypt.html"
-        }
-    </script>
-    <script>
-        function logOut() {
-            window.location.href="./Login.html"
-        }
-    </script>
-    <script>
-        function goToEncryptFile() {
-            window.location.href="./adminPageEncrypt.html"
-        }
-    </script>
-    <script type="module" src="../js/encryptText.js"></script>
+    <script type="module" src="../js/encrypt.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </body>
 </html>
