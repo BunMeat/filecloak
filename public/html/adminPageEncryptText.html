@@ -6,6 +6,7 @@
     <title>File Encryption</title>
     <link rel="stylesheet" href="../css/adminPageEncryptTextStyles.css">
     <script src="../../env.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
@@ -48,6 +49,7 @@
             }
         });
     </script>
+    <script type="module" src="../js/encryptText.js"></script>
 </head>
 <body>
     <div class="container" id="encryptForm">
@@ -92,26 +94,21 @@
         </form>
     </div>
     <script>
-        function toggleForms() {
-            window.location.href="./dataList.html"
-        }
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            window.location.href = "./Login.html";
+        });
+
+        document.getElementById('encryptTextButton').addEventListener('click', () => {
+            window.location.href = "./adminPageEncryptText.html";
+        });
+
+        document.getElementById('decryptButton').addEventListener('click', () => {
+            window.location.href = "./adminPageDecrypt.html";
+        });
+
+        document.getElementById('listButton').addEventListener('click', () => {
+            window.location.href = "./dataList.html";
+        });
     </script>
-    <script>
-        function goToDecrypt() {
-            window.location.href="./adminPageDecrypt.html"
-        }
-    </script>
-    <script>
-        function logOut() {
-            window.location.href="./Login.html"
-        }
-    </script>
-    <script>
-        function goToEncryptFile() {
-            window.location.href="./adminPageEncrypt.html"
-        }
-    </script>
-    <script type="module" src="../js/encryptText.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </body>
 </html>
