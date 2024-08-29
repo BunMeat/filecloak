@@ -54,7 +54,7 @@
 <body>
     <div class="container" id="encryptForm">
         <div class="logoutButton">
-            <button type="button" class="button logout" onclick="logOut()">Logout</button><br>
+            <button type="button" class="button logout" id="logoutButton">Logout</button><br>
         </div>
         <header>
             <img src="../asset/FileCloak.webp" alt="FileCloak Logo" class="logo">
@@ -64,7 +64,7 @@
                 <div class="file-encryption">
                     <h2>Input Text</h2>
                     <div>
-                        <button type="button" class="button encryptFile" onclick="goToEncryptFile()">Encrypt File</button><br>
+                        <button type="button" class="button encryptFile" id="encryptTextButton">Encrypt File</button><br>
                     </div>
                     <div>
                         <textarea id="textToEncrypt" rows="3" cols="50" maxlength="500">Input your text</textarea><br>
@@ -83,11 +83,11 @@
                 </div>
                 <div>
                     <div>
-                        <button type="button" class="button decrypt" onclick="goToDecrypt()">Decrypt</button><br>
+                        <button type="button" class="button decrypt" id="decryptButton">Decrypt</button><br>
                     </div>
                     <br>
                     <div>
-                        <button type="button" class="button list" onclick="toggleForms()">Move to List</button><br>
+                        <button type="button" class="button list" id="listButton">Move to List</button><br>
                     </div>
                 </div>
             </div>
