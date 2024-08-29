@@ -110,8 +110,12 @@ encryptForm.addEventListener('submit', async (e) => {
           for (let file of files) {
               zip.file(file.name, file);
           }
+
+          // Generate zip content as a Blob
           const zipContent = await zip.generateAsync({ type: 'blob' });
-          fileToUpload = zipContent;
+
+          // Create a new Blob with the correct MIME type
+          fileToUpload = new Blob([zipContent], { type: 'application/zip' });
           fileName = 'files_' + new Date().toISOString().replace(/[:.]/g, '-') + '.zip';
       } else {
           // Otherwise, just take the first file
@@ -132,8 +136,13 @@ encryptForm.addEventListener('submit', async (e) => {
       const formattedDatetime = new Intl.DateTimeFormat('en-GB', options).format(currentDatetime);
       const storageRef = ref(storage, 'uploads/' + fileName + '-' + formattedDatetime.replace(/[:\s]/g, '-'));
 
-      // Upload file (or zip)
-      const snapshot = await uploadBytes(storageRef, fileToUpload);
+      // Set metadata with the correct content type
+      const metadata = {
+          contentType: zipFilesCheckbox ? 'application/zip' : fileToUpload.type,
+      };
+
+      // Upload file (or zip) with metadata
+      const snapshot = await uploadBytes(storageRef, fileToUpload, metadata);
       console.log('Uploaded a blob or file!', snapshot);
 
       // Get download URL

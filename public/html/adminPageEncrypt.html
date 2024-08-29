@@ -6,12 +6,13 @@
     <title>File Encryption</title>
     <link rel="stylesheet" href="../css/adminPageEncryptStyles.css">
     <script src="../../env.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
         import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: window.env.FIREBASEKEY,
             authDomain: window.env.FIREBASEAUTHDOMAIN,
@@ -21,38 +22,39 @@
             appId: window.env.APPID
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const firestore = getFirestore(app);
 
-        // Check user role on page load
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userDocRef = doc(firestore, 'users', user.uid);
-                const userDocSnap = await getDoc(userDocRef);
+        document.addEventListener('DOMContentLoaded', () => {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    const userDocRef = doc(firestore, 'users', user.uid);
+                    const userDocSnap = await getDoc(userDocRef);
 
-                if (userDocSnap.exists()) {
-                    const userData = userDocSnap.data();
-                    if (userData.role !== 'admin') {
-                        alert("Access denied. Admins only.");
+                    if (userDocSnap.exists()) {
+                        const userData = userDocSnap.data();
+                        if (userData.role !== 'admin') {
+                            alert("Access denied. Admins only.");
+                            window.location.href = "./userPage.html";
+                        }
+                    } else {
+                        alert("No user data found. Access denied.");
                         window.location.href = "./userPage.html";
                     }
                 } else {
-                    alert("No user data found. Access denied.");
+                    alert("Not authenticated. Redirecting to login.");
                     window.location.href = "./userPage.html";
                 }
-            } else {
-                alert("Not authenticated. Redirecting to login.");
-                window.location.href = "./userPage.html";
-            }
+            });
         });
     </script>
+    <script type="module" src="../js/encrypt.js"></script>
 </head>
 <body>
     <div class="container" id="encryptForm">
         <div class="logoutButton">
-            <button type="button" class="button logout" onclick="logOut()">Logout</button><br>
+            <button type="button" class="button logout" id="logoutButton">Logout</button><br>
         </div>
         <header>
             <img src="../asset/FileCloak.webp" alt="FileCloak Logo" class="logo">
@@ -62,7 +64,7 @@
                 <div class="file-encryption">
                     <h2>Input File</h2>
                     <div>
-                        <button type="button" class="button encryptText" onclick="goToEncryptText()">Encrypt Text</button><br>
+                        <button type="button" class="button encryptText" id="encryptTextButton">Encrypt Text</button><br>
                     </div>
                     <div class="file-input">
                         <input type="file" id="fileInput" name="file" multiple required />
@@ -83,42 +85,36 @@
                         <textarea id="output" rows="9" cols="50" readonly></textarea><br>
                         <button id="copyButton2" type="button">Copy to Clipboard</button>
                     </div>
-                    <button type="submit" class="button encrypt" value="Encrypt" id="encryptButton">Encrypt</button>
+                    <button type="submit" class="button encrypt" id="encryptButton">Encrypt</button>
                 </div>
                 <div>
                     <div>
-                        <button type="button" class="button decrypt" onclick="goToDecrypt()">Decrypt</button><br>
+                        <button type="button" class="button decrypt" id="decryptButton">Decrypt</button><br>
                     </div>
                     <br>
                     <div>
-                        <button type="button" class="button list" onclick="toggleForms()">Move to List</button><br>
+                        <button type="button" class="button list" id="listButton">Move to List</button><br>
                     </div>
                 </div>
             </div>
         </form>
     </div>
     <script>
-        function toggleForms() {
-            window.location.href="./dataList.html"
-        }
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            window.location.href = "./Login.html";
+        });
+
+        document.getElementById('encryptTextButton').addEventListener('click', () => {
+            window.location.href = "./adminPageEncryptText.html";
+        });
+
+        document.getElementById('decryptButton').addEventListener('click', () => {
+            window.location.href = "./adminPageDecrypt.html";
+        });
+
+        document.getElementById('listButton').addEventListener('click', () => {
+            window.location.href = "./dataList.html";
+        });
     </script>
-    <script>
-        function goToDecrypt() {
-            window.location.href="./adminPageDecrypt.html"
-        }
-    </script>
-    <script>
-        function logOut() {
-            window.location.href="./Login.html"
-        }
-    </script>
-    <script>
-        function goToEncryptText() {
-            window.location.href="./adminPageEncryptText.html"
-        }
-    </script>
-    <script type="module" src="../js/encrypt.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </body>
 </html>
