@@ -3,7 +3,6 @@ import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-aut
 import { getFirestore, collection, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
 
-//firebase
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
   authDomain: window.env.FIREBASEAUTHDOMAIN,
@@ -27,41 +26,24 @@ function encrypt(text, key) {
 
   const encryptKey = CryptoJS.enc.Utf8.parse(key);
   const encryptIV = CryptoJS.lib.WordArray.random(16);
-
   const encrypted = CryptoJS.AES.encrypt(text, encryptKey, { iv: encryptIV }).toString();
+  
   return encrypted + ':' + encryptIV.toString(CryptoJS.enc.Base64);
 }
 
-function copyTokenToClipboard(text) {
+function copyToClipboard(text) {
   navigator.clipboard.writeText(text)
-      .then(() => {
-          ('Text copied to clipboard:', text);
-          alert('Encrypted text has been copied to clipboard!');
-      })
-      .catch((error) => {
-          console.error('Unable to copy encrypted text to clipboard:', error);
-      });
-}
-
-function copyKeyToClipboard(text) {
-  navigator.clipboard.writeText(text)
-  .then(() => {
-      ('Text copied to clipboard:', text);
-      alert('Encryption Key has been copied to clipboard!');
-  })
-  .catch((error) => {
-      console.error('Unable to copy encryption key to clipboard:', error);
-  });
+    .then(() => {
+      alert('Text has been copied to clipboard!');
+    })
+    .catch((error) => {
+      console.error('Unable to copy text to clipboard:', error);
+    });
 }
 
 document.getElementById('copyButton').addEventListener('click', function() {
   const keyGenerated = document.getElementById('keyGen').value;
-  copyKeyToClipboard(keyGenerated);
-});
-
-document.getElementById('copyButton2').addEventListener('click', function() {
-  const encryptedText = document.getElementById('output').value;
-  copyTokenToClipboard(encryptedText);
+  copyToClipboard(keyGenerated);
 });
 
 document.getElementById('keyGenButton').addEventListener('click', function() {
@@ -77,14 +59,8 @@ keyGen.addEventListener('input', updateCounter);
 function updateCounter() {
   const currentLength = keyGenLength.value.length;
   const maxLength = parseInt(keyGenLength.getAttribute('maxlength'));
-  
   counter.textContent = currentLength;
-  
-  if (currentLength > maxLength) {
-    counter.style.color = 'red';
-  } else {
-    counter.style.color = 'black';
-  }
+  counter.style.color = currentLength > maxLength ? 'red' : 'black';
 }
 
 encryptForm.addEventListener('submit', async (e) => {
@@ -95,83 +71,81 @@ encryptForm.addEventListener('submit', async (e) => {
   const zipFilesCheckbox = document.getElementById('zipFilesCheckbox').checked;
 
   if (!key) {
-      alert('Please generate or provide an encryption key before proceeding.');
-      return;
+    alert('Please provide a valid 32-character encryption key.');
+    return;
+  }
+
+  if (files.length === 0) {
+    alert('Please select at least one file to upload.');
+    return;
+  }
+
+  let uploadFiles = [];
+  if (zipFilesCheckbox) {
+    const zip = new JSZip();
+    for (const file of files) {
+      zip.file(file.name, file);
+    }
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    uploadFiles = [{ name: 'encrypted_files.zip', file: zipBlob }];
+  } else {
+    uploadFiles = Array.from(files).map(file => ({ name: file.name, file }));
   }
 
   try {
-      let fileToUpload;
-      let fileName;
-      let mimeType;
+    const encryptedLinks = [];
 
-      if (zipFilesCheckbox) {
-          
-          const zip = new JSZip();
-          for (let file of files) {
-              zip.file(file.name, file); 
-          }
+    for (const { name, file } of uploadFiles) {
+      const encryptedFile = new Blob([encrypt(await file.text(), key)], { type: file.type });
+      const fileRef = ref(storage, `encrypted/${name}`);
+      await uploadBytes(fileRef, encryptedFile);
+      const downloadURL = await getDownloadURL(fileRef);
+      const encryptedText = encrypt(downloadURL, key);
 
-          const zipContent = await zip.generateAsync({ type: 'blob' });
-
-          fileToUpload = new Blob([zipContent], { type: 'application/x-zip-compressed' });
-          fileName = 'files_' + new Date().toISOString().replace(/[:.]/g, '-') + '.zip';
-          mimeType = 'application/x-zip-compressed';
-          ("fileToUpload", fileToUpload);
-          ("fileName", fileName);
-          ("mimeType", mimeType);
-      } else {
-          fileToUpload = files[0];
-          fileName = fileToUpload.name;
-          mimeType = fileToUpload.type;
-      }
-
-      const currentDatetime = new Date();
-      const options = {
-          timeZone: 'Asia/Jakarta',
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-      };
-      const formattedDatetime = new Intl.DateTimeFormat('en-GB', options).format(currentDatetime);
-      const storageRef = ref(storage, 'uploads/' + fileName);
-      ("storageRef", storageRef);
-
-      const metadata = {
-          contentType: mimeType,
-      };
-
-      ("metadata", metadata);
-
-      const snapshot = await uploadBytes(storageRef, fileToUpload, metadata);
-      ('Uploaded a blob or file!', snapshot);
-
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      const encryptedLink = encrypt(downloadURL, key);
-      document.getElementById('output').value = encryptedLink;
+      encryptedLinks.push(encryptedText);
 
       const user = auth.currentUser;
       if (user) {
-          const userCollection = collection(firestore, "users");
-          const userRefDoc = doc(userCollection, user.uid);
-          const filesSubCollection = collection(userRefDoc, "files");
-          const fileDocRef = doc(filesSubCollection);
+        const fileMetadata = {
+          userId: user.uid,
+          fileName: name,
+          downloadURL: downloadURL,
+          uploadedAt: new Date(),
+        };
 
-          const fileData = {
-              timestamp: formattedDatetime,
-              url: downloadURL,
-              encryptUrl: encryptedLink
-          };
-
-          await setDoc(fileDocRef, fileData);
-          ('File data saved to Firestore:', fileData);
-      } else {
-          console.error('No user is signed in.');
+        await setDoc(doc(collection(firestore, 'encryptedFiles')), fileMetadata);
       }
+    }
+
+    const encryptedOutputsContainer = document.getElementById('encryptedOutputsContainer');
+    encryptedOutputsContainer.innerHTML = '';
+    encryptedLinks.forEach((link, index) => {
+      const outputContainer = document.createElement('div');
+
+      outputContainer.style.marginTop = '15px';
+
+      const outputTextArea = document.createElement('textarea');
+      outputTextArea.value = link;
+      outputTextArea.rows = 3;
+      outputTextArea.cols = 50;
+
+      const copyButton = document.createElement('button');
+      copyButton.textContent = 'Copy to Clipboard';
+      copyButton.addEventListener('click', () => {
+        copyToClipboard(link);
+      });
+
+      outputContainer.appendChild(outputTextArea);
+      outputContainer.appendChild(copyButton);
+
+      encryptedOutputsContainer.appendChild(outputContainer);
+    });
+
+    encryptedOutputsContainer.style.marginBottom = '15px';
+
+    alert('Files have been encrypted, uploaded, and metadata stored successfully!');
   } catch (error) {
-      console.error('Upload failed', error);
-      alert('Upload failed: ' + error.message);
+    console.error('An error occurred during the encryption or upload process:', error);
+    alert('An error occurred. Please try again.');
   }
 });
