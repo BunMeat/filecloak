@@ -31,10 +31,10 @@ function encrypt(text, key) {
   return encrypted + ':' + encryptIV.toString(CryptoJS.enc.Base64);
 }
 
-function copyToClipboard(text) {
+function copyToClipboard(text, message) {
   navigator.clipboard.writeText(text)
     .then(() => {
-      alert('Text has been copied to clipboard!');
+      alert(message);
     })
     .catch((error) => {
       console.error('Unable to copy text to clipboard:', error);
@@ -43,7 +43,7 @@ function copyToClipboard(text) {
 
 document.getElementById('copyButton').addEventListener('click', function() {
   const keyGenerated = document.getElementById('keyGen').value;
-  copyToClipboard(keyGenerated);
+  copyToClipboard(keyGenerated, 'Encryption Key has been copied to clipboard!');
 });
 
 document.getElementById('keyGenButton').addEventListener('click', function() {
@@ -54,7 +54,7 @@ document.getElementById('keyGenButton').addEventListener('click', function() {
 const keyGenLength = document.getElementById('keyGen');
 const counter = document.getElementById('counter');
 
-keyGen.addEventListener('input', updateCounter);
+keyGenLength.addEventListener('input', updateCounter);
 
 function updateCounter() {
   const currentLength = keyGenLength.value.length;
@@ -101,7 +101,6 @@ encryptForm.addEventListener('submit', async (e) => {
       await uploadBytes(fileRef, encryptedFile);
       const downloadURL = await getDownloadURL(fileRef);
       const encryptedText = encrypt(downloadURL, key);
-
       encryptedLinks.push(encryptedText);
 
       const user = auth.currentUser;
@@ -121,7 +120,6 @@ encryptForm.addEventListener('submit', async (e) => {
     encryptedOutputsContainer.innerHTML = '';
     encryptedLinks.forEach((link, index) => {
       const outputContainer = document.createElement('div');
-
       outputContainer.style.marginTop = '15px';
 
       const outputTextArea = document.createElement('textarea');
@@ -132,7 +130,7 @@ encryptForm.addEventListener('submit', async (e) => {
       const copyButton = document.createElement('button');
       copyButton.textContent = 'Copy to Clipboard';
       copyButton.addEventListener('click', () => {
-        copyToClipboard(link);
+        copyToClipboard(link, 'Encrypted text has been copied to clipboard!');
       });
 
       outputContainer.appendChild(outputTextArea);
