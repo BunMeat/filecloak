@@ -49,11 +49,6 @@ document.getElementById('copyButton').addEventListener('click', function() {
   copyToClipboard(keyGenerated, 'Encryption Key has been copied to clipboard!');
 });
 
-document.getElementById('copyButton2').addEventListener('click', function() {
-  const encryptedText = document.getElementById('output').value;
-  copyToClipboard(encryptedText, 'Encrypted text has been copied to clipboard!');
-});
-
 // Generate a random encryption key
 document.getElementById('keyGenButton').addEventListener('click', function() {
   const randomBytes = CryptoJS.lib.WordArray.random(32); 
