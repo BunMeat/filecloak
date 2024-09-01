@@ -185,6 +185,34 @@ encryptForm.addEventListener('submit', async (e) => {
       } else {
           console.error('No user is signed in.');
       }
+
+      const encryptedOutputsContainer = document.getElementById('encryptedOutputsContainer');
+      encryptedOutputsContainer.innerHTML = '';
+      encryptedLinks.forEach((link, index) => {
+      const outputContainer = document.createElement('div');
+
+      outputContainer.style.marginTop = '15px';
+
+      const outputTextArea = document.createElement('textarea');
+      outputTextArea.value = link;
+      outputTextArea.rows = 3;
+      outputTextArea.cols = 50;
+
+      const copyButton = document.createElement('button');
+      copyButton.textContent = 'Copy to Clipboard';
+      copyButton.addEventListener('click', () => {
+        copyToClipboard(link);
+      });
+
+      outputContainer.appendChild(outputTextArea);
+      outputContainer.appendChild(copyButton);
+
+      encryptedOutputsContainer.appendChild(outputContainer);
+    });
+
+    encryptedOutputsContainer.style.marginBottom = '15px';
+
+    alert('Files have been encrypted, uploaded, and metadata stored successfully!');
   } catch (error) {
       console.error('Upload failed', error);
       alert('Upload failed: ' + error.message);
