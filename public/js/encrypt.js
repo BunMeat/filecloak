@@ -35,38 +35,21 @@ function encrypt(text, key) {
   return encrypted + ':' + encryptIV.toString(CryptoJS.enc.Base64);
 }
 
-//copy to clipboard
-function copyTokenToClipboard(text) {
-  navigator.clipboard.writeText(text)
-      .then(() => {
-          ('Text copied to clipboard:', text);
-          alert('Encrypted text has been copied to clipboard!');
-      })
-      .catch((error) => {
-          console.error('Unable to copy encrypted text to clipboard:', error);
-      });
-}
-
-function copyKeyToClipboard(text) {
+function copyToClipboard(text) {
   navigator.clipboard.writeText(text)
   .then(() => {
       ('Text copied to clipboard:', text);
-      alert('Encryption Key has been copied to clipboard!');
+      alert('Text has been copied to clipboard!');
   })
   .catch((error) => {
-      console.error('Unable to copy encryption key to clipboard:', error);
+      console.error('Unable to copy to clipboard:', error);
   });
 }
 
 //copy button call
 document.getElementById('copyButton').addEventListener('click', function() {
   const keyGenerated = document.getElementById('keyGen').value;
-  copyKeyToClipboard(keyGenerated);
-});
-
-document.getElementById('copyButton2').addEventListener('click', function() {
-  const encryptedText = document.getElementById('output').value;
-  copyTokenToClipboard(encryptedText);
+  copyToClipboard(keyGenerated);
 });
 
 //generate key
