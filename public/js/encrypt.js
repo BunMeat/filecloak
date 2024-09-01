@@ -77,6 +77,26 @@ function updateCounter() {
   }
 }
 
+// Helper function to display encrypted links
+function displayEncryptedLink(encryptedLink) {
+  const outputTextArea = document.createElement('textarea');
+  outputTextArea.value = encryptedLink;
+  outputTextArea.rows = 3;
+  outputTextArea.cols = 50;
+
+  const copyButton = document.createElement('button');
+  copyButton.textContent = 'Copy to Clipboard';
+  copyButton.addEventListener('click', () => {
+    navigator.clipboard.writeText(encryptedLink);
+    alert('Encrypted URL copied to clipboard!');
+  });
+
+  const encryptedOutputsContainer = document.getElementById('encryptedOutputsContainer');
+  encryptedOutputsContainer.appendChild(outputTextArea);
+  encryptedOutputsContainer.appendChild(copyButton);
+  encryptedOutputsContainer.style.marginBottom = '15px';
+}
+
 //encrypt form
 encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -94,10 +114,9 @@ encryptForm.addEventListener('submit', async (e) => {
     let fileToUpload;
     let fileName;
     let mimeType;
-    const encryptedLinks = [];
 
     if (zipFilesCheckbox) {
-      // Create a zip file if checkbox is checked
+      // Case 1: Zip and encrypt multiple files
       const zip = new JSZip();
       for (let file of files) {
         zip.file(file.name, file); // Add files to the zip
@@ -106,114 +125,56 @@ encryptForm.addEventListener('submit', async (e) => {
       // Generate zip content as a Blob
       const zipContent = await zip.generateAsync({ type: 'blob' });
 
-      // Convert the Blob content to a WordArray for encryption
-      const reader = new FileReader();
-      reader.readAsArrayBuffer(zipContent);
-      await new Promise((resolve) => (reader.onloadend = resolve));
-      const wordArray = CryptoJS.lib.WordArray.create(reader.result);
-
-      // Encrypt the zip content using the provided key
-      const encryptedContent = encrypt(wordArray, key);
-
-      // Create a Blob from the encrypted content for uploading
-      const encryptedBlob = new Blob([CryptoJS.enc.Base64.parse(encryptedContent.split(':')[0])], {
-        type: 'application/x-zip-compressed',
-      });
-
-      // Generate a unique file name for the encrypted zip file
-      fileName = 'encrypted_files_' + new Date().toISOString().replace(/[:.]/g, '-') + '.zip';
+      // Set up for Firebase Storage upload
+      fileName = 'files_' + new Date().toISOString().replace(/[:.]/g, '-') + '.zip';
       mimeType = 'application/x-zip-compressed';
-      fileToUpload = encryptedBlob;
+      fileToUpload = zipContent;
+
+      const storageRef = ref(storage, 'uploads/' + fileName);
+      const metadata = { contentType: mimeType };
+
+      // Step 1: Upload to Firebase Storage
+      const snapshot = await uploadBytes(storageRef, fileToUpload, metadata);
+      console.log('Uploaded zip file to Firebase Storage!', snapshot);
+
+      // Step 2: Get the download URL
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      console.log('Download URL for the zip file:', downloadURL);
+
+      // Step 3: Encrypt the download URL
+      const encryptedLink = encrypt(downloadURL, key);
+
+      // Step 4: Display the encrypted URL
+      displayEncryptedLink(encryptedLink);
+
     } else {
-      // Encrypt and upload each file individually if not zipping
+      // Case 2: Encrypt and upload each file individually
+      const encryptedLinks = [];
+
       for (const file of files) {
-        const fileText = await file.text();
-        const encryptedContent = encrypt(CryptoJS.enc.Utf8.parse(fileText), key); // Use your encrypt function here
+        // Set up for Firebase Storage upload
+        const fileRef = ref(storage, `uploads/${file.name}`);
 
-        // Convert the encrypted content back to a Blob
-        const encryptedBlob = new Blob([CryptoJS.enc.Base64.parse(encryptedContent.split(':')[0])], { type: file.type });
+        // Step 1: Upload to Firebase Storage
+        await uploadBytes(fileRef, file);
+        console.log(`Uploaded file ${file.name} to Firebase Storage`);
 
-        // Generate a unique file name for each encrypted file
-        const encryptedFileName = 'encrypted_' + file.name;
-
-        // Upload the encrypted file
-        const fileRef = ref(storage, `uploads/${encryptedFileName}`);
-        await uploadBytes(fileRef, encryptedBlob);
-
-        // Get the download URL of the uploaded file
+        // Step 2: Get the download URL
         const downloadURL = await getDownloadURL(fileRef);
+        console.log(`Download URL for file ${file.name}:`, downloadURL);
 
-        // Encrypt the download URL for sharing
+        // Step 3: Encrypt the download URL
         const encryptedLink = encrypt(downloadURL, key);
         encryptedLinks.push(encryptedLink);
-
-        // Store metadata in Firestore for each file
-        const user = auth.currentUser;
-        if (user) {
-          const userCollection = collection(firestore, "users");
-          const userRefDoc = doc(userCollection, user.uid);
-          const filesSubCollection = collection(userRefDoc, "files");
-          const fileDocRef = doc(filesSubCollection);
-
-          const fileData = {
-            timestamp: new Date().toISOString(),
-            url: downloadURL,
-            encryptUrl: encryptedLink,
-          };
-
-          await setDoc(fileDocRef, fileData);
-        } else {
-          console.error('No user is signed in.');
-        }
       }
+
+      // Step 4: Display all encrypted URLs
+      encryptedLinks.forEach((link) => displayEncryptedLink(link));
     }
 
-    // Upload the encrypted file/zip with metadata
-    if (fileToUpload) {
-      const storageRef = ref(storage, `uploads/${fileName}`);
-      const metadata = {
-        contentType: mimeType,
-      };
-
-      const snapshot = await uploadBytes(storageRef, fileToUpload, metadata);
-      console.log('Uploaded an encrypted blob or file!', snapshot);
-
-      // Get download URL for the uploaded encrypted zip file
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      const encryptedLink = encrypt(downloadURL, key);
-      encryptedLinks.push(encryptedLink);
-    }
-
-    // Display encrypted links in the UI
-    const encryptedOutputsContainer = document.getElementById('encryptedOutputsContainer');
-    encryptedOutputsContainer.innerHTML = '';
-    encryptedLinks.forEach((link, index) => {
-      const outputContainer = document.createElement('div');
-      outputContainer.style.marginTop = '15px';
-
-      const outputTextArea = document.createElement('textarea');
-      outputTextArea.value = link;
-      outputTextArea.rows = 3;
-      outputTextArea.cols = 50;
-
-      const copyButton = document.createElement('button');
-      copyButton.textContent = 'Copy to Clipboard';
-      copyButton.addEventListener('click', () => {
-        copyToClipboard(link);
-      });
-
-      outputContainer.appendChild(outputTextArea);
-      outputContainer.appendChild(copyButton);
-
-      encryptedOutputsContainer.appendChild(outputContainer);
-    });
-
-    encryptedOutputsContainer.style.marginBottom = '15px';
-
-    alert('Files have been encrypted, uploaded, and metadata stored successfully!');
+    alert('Files have been processed successfully!');
   } catch (error) {
     console.error('Upload failed', error);
     alert('Upload failed: ' + error.message);
   }
 });
-
