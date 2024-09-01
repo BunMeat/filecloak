@@ -15,26 +15,35 @@ document.getElementById('copyButton').addEventListener('click', function() {
   copyLinkToClipboard(fileLink);
 });
 
-function decrypt(encryptedText, key) {
-  const encryptKey = CryptoJS.enc.Utf8.parse(key);
-  const ivString = encryptedText.slice(-24); 
-  const encryptIV = CryptoJS.enc.Base64.parse(ivString);
-  encryptedText = encryptedText.slice(0, -24);
+function decrypt(encryptedBase64, key) {
+  if (key.length !== 32) {
+    throw new Error('Invalid key length. Key must be 32 characters long.');
+  }
+  const [encryptedData, iv] = encryptedBase64.split(':');
+
+  const decryptKey = CryptoJS.enc.Utf8.parse(key);
+  const decryptIV = CryptoJS.enc.Base64.parse(iv);
+  const encryptedWordArray = CryptoJS.enc.Base64.parse(encryptedData);
 
   const decrypted = CryptoJS.AES.decrypt(
-    encryptedText,
-    encryptKey,
-    { iv: encryptIV }
+    { ciphertext: encryptedWordArray },
+    decryptKey,
+    { iv: decryptIV }
   );
 
-  const decryptedURL = decrypted.toString(CryptoJS.enc.Utf8);
-  return decryptedURL;
+  return decrypted;
 }
+
+function wordArrayToString(wordArray) {
+  return CryptoJS.enc.Utf8.stringify(wordArray);
+}
+
 decryptForm.addEventListener('submit', async (e) =>{
   e.preventDefault();
   const encryptET = document.getElementById('tokenInput').value;
   const keyET = document.getElementById('keyInput').value;
   const decryptET = document.getElementById('output');
-  decryptET.value = decrypt(encryptET, keyET);
+  const decryptedText = decrypt(encryptET, keyET);
+  decryptET.value = wordArrayToString(decryptedText);
 })
 

@@ -21,16 +21,24 @@ const storage = getStorage(firebaseApp);
 const encryptForm = document.getElementById('encryptForm');
 
 // Encrypt function
-function encrypt(text, key) {
+function encrypt(wordArray, key) {
   if (key.length !== 32) {
     throw new Error('Invalid key length. Key must be 32 characters long.');
   }
 
+  // Parse the key and generate a random IV
   const encryptKey = CryptoJS.enc.Utf8.parse(key);
   const encryptIV = CryptoJS.lib.WordArray.random(16);
-  const encrypted = CryptoJS.AES.encrypt(text, encryptKey, { iv: encryptIV }).toString();
-  
-  return encrypted + ':' + encryptIV.toString(CryptoJS.enc.Base64);
+
+  // Encrypt the binary data (WordArray) using the key and IV
+  const encrypted = CryptoJS.AES.encrypt(wordArray, encryptKey, { iv: encryptIV });
+
+  // Combine the encrypted data and IV, encode them in Base64, and return as a string
+  const encryptedBase64 = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
+  const ivBase64 = encryptIV.toString(CryptoJS.enc.Base64);
+
+  // Return the encrypted data along with the IV, separated by a colon
+  return `${encryptedBase64}:${ivBase64}`;
 }
 
 // Function to copy text to clipboard
