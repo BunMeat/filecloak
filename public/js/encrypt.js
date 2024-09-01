@@ -97,7 +97,7 @@ encryptForm.addEventListener('submit', async (e) => {
 
     for (const { name, file } of uploadFiles) {
       const encryptedFile = new Blob([encrypt(await file.text(), key)], { type: file.type });
-      const fileRef = ref(storage, `encrypted/${name}`);
+      const fileRef = ref(storage, `uploads/${name}`);
       await uploadBytes(fileRef, encryptedFile);
       const downloadURL = await getDownloadURL(fileRef);
       const encryptedText = encrypt(downloadURL, key);
@@ -141,7 +141,7 @@ encryptForm.addEventListener('submit', async (e) => {
 
     encryptedOutputsContainer.style.marginBottom = '15px';
 
-    alert('Files have been encrypted, uploaded, and metadata stored successfully!');
+    alert('Files have been encrypted successfully!');
   } catch (error) {
     console.error('An error occurred during the encryption or upload process:', error);
     alert('An error occurred. Please try again.');
