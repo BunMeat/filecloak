@@ -134,17 +134,30 @@ encryptForm.addEventListener('submit', async (e) => {
           fileToUpload = files[0];
           fileName = fileToUpload.name;
           mimeType = fileToUpload.type;
-      }
 
-      const currentDatetime = new Date();
-      const options = {
-          timeZone: 'Asia/Jakarta',
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
+          fileToUpload = Array.from(files).map(file => ({ name: file.name, file }));
+
+          const encryptedLinks = [];
+
+          for (const { name, file } of fileToUpload) {
+            const encryptedFile = new Blob([encrypt(await file.text(), key)], { type: file.type });
+            const fileRef = ref(storage, `encrypted/${name}`);
+            await uploadBytes(fileRef, encryptedFile);
+            const downloadURL = await getDownloadURL(fileRef);
+            const encryptedText = encrypt(downloadURL, key);
+
+            encryptedLinks.push(encryptedText);
+          }
+
+          const currentDatetime = new Date();
+          const options = {
+              timeZone: 'Asia/Jakarta',
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit'
       };
       const formattedDatetime = new Intl.DateTimeFormat('en-GB', options).format(currentDatetime);
       const storageRef = ref(storage, 'uploads/' + fileName);
