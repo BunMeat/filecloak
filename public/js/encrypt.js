@@ -3,6 +3,7 @@ import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-aut
 import { getFirestore, collection, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
 
+// Firebase configuration
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
   authDomain: window.env.FIREBASEAUTHDOMAIN,
@@ -19,6 +20,7 @@ const storage = getStorage(firebaseApp);
 
 const encryptForm = document.getElementById('encryptForm');
 
+// Encrypt function
 function encrypt(text, key) {
   if (key.length !== 32) {
     throw new Error('Invalid key length. Key must be 32 characters long.');
@@ -31,6 +33,7 @@ function encrypt(text, key) {
   return encrypted + ':' + encryptIV.toString(CryptoJS.enc.Base64);
 }
 
+// Function to copy text to clipboard
 function copyToClipboard(text, message) {
   navigator.clipboard.writeText(text)
     .then(() => {
@@ -46,6 +49,12 @@ document.getElementById('copyButton').addEventListener('click', function() {
   copyToClipboard(keyGenerated, 'Encryption Key has been copied to clipboard!');
 });
 
+document.getElementById('copyButton2').addEventListener('click', function() {
+  const encryptedText = document.getElementById('output').value;
+  copyToClipboard(encryptedText, 'Encrypted text has been copied to clipboard!');
+});
+
+// Generate a random encryption key
 document.getElementById('keyGenButton').addEventListener('click', function() {
   const randomBytes = CryptoJS.lib.WordArray.random(32); 
   document.getElementById('keyGen').value = randomBytes.toString(CryptoJS.enc.Hex).slice(0, 32);
@@ -56,6 +65,7 @@ const counter = document.getElementById('counter');
 
 keyGenLength.addEventListener('input', updateCounter);
 
+// Update character counter for key input
 function updateCounter() {
   const currentLength = keyGenLength.value.length;
   const maxLength = parseInt(keyGenLength.getAttribute('maxlength'));
@@ -63,6 +73,7 @@ function updateCounter() {
   counter.style.color = currentLength > maxLength ? 'red' : 'black';
 }
 
+// Handle the encryption and upload process
 encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const fileInput = document.getElementById('fileInput');
@@ -80,22 +91,36 @@ encryptForm.addEventListener('submit', async (e) => {
     return;
   }
 
-  let uploadFiles = [];
-  if (zipFilesCheckbox) {
-    const zip = new JSZip();
-    for (const file of files) {
-      zip.file(file.name, file);
-    }
-    const zipBlob = await zip.generateAsync({ type: 'blob' });
-    uploadFiles = [{ name: 'encrypted_files.zip', file: zipBlob }];
-  } else {
-    uploadFiles = Array.from(files).map(file => ({ name: file.name, file }));
-  }
-
   try {
+    let uploadFiles = [];
+    let fileToUpload;
+    let fileName;
+    let mimeType;
+
+    if (zipFilesCheckbox) {
+      // Create a zip file if the checkbox is checked
+      const zip = new JSZip();
+      for (let file of files) {
+        zip.file(file.name, file);
+      }
+
+      // Generate zip content as a Blob
+      const zipContent = await zip.generateAsync({ type: 'blob' });
+
+      // Create new blob with the correct MIME type
+      fileToUpload = new Blob([zipContent], { type: 'application/x-zip-compressed' });
+      fileName = 'files_' + new Date().toISOString().replace(/[:.]/g, '-') + '.zip';
+      mimeType = 'application/x-zip-compressed';
+      uploadFiles = [{ name: fileName, file: fileToUpload }];
+    } else {
+      // Handle individual files
+      uploadFiles = Array.from(files).map(file => ({ name: file.name, file }));
+    }
+
     const encryptedLinks = [];
 
     for (const { name, file } of uploadFiles) {
+      // Encrypt each file or zip
       const encryptedFile = new Blob([encrypt(await file.text(), key)], { type: file.type });
       const fileRef = ref(storage, `uploads/${name}`);
       await uploadBytes(fileRef, encryptedFile);
@@ -141,7 +166,7 @@ encryptForm.addEventListener('submit', async (e) => {
 
     encryptedOutputsContainer.style.marginBottom = '15px';
 
-    alert('Files have been encrypted successfully!');
+    alert('Files have been encrypted, uploaded, and metadata stored successfully!');
   } catch (error) {
     console.error('An error occurred during the encryption or upload process:', error);
     alert('An error occurred. Please try again.');
