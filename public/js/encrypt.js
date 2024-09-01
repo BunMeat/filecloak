@@ -80,17 +80,46 @@ encryptForm.addEventListener('submit', async (e) => {
     return;
   }
 
-  let uploadFiles = [];
-  if (zipFilesCheckbox) {
-    const zip = new JSZip();
-    for (const file of files) {
-      zip.file(file.name, file);
-    }
-    const zipBlob = await zip.generateAsync({ type: 'blob' });
-    uploadFiles = [{ name: 'encrypted_files.zip', file: zipBlob }];
-  } else {
-    uploadFiles = Array.from(files).map(file => ({ name: file.name, file }));
-  }
+  let fileToUpload;
+      let fileName;
+      let mimeType;
+
+      if (zipFilesCheckbox) {
+          //create a zip file if checkbox is checked
+          const zip = new JSZip();
+          for (let file of files) {
+              zip.file(file.name, file); //make sure files are added correctly to the zip
+          }
+
+          //generate zip content as a Blob
+          const zipContent = await zip.generateAsync({ type: 'blob' });
+
+          //create new blob with the correct MIME type
+          fileToUpload = new Blob([zipContent], { type: 'application/x-zip-compressed' });
+          fileName = 'files_' + new Date().toISOString().replace(/[:.]/g, '-') + '.zip';
+          mimeType = 'application/x-zip-compressed';
+          ("fileToUpload", fileToUpload);
+          ("fileName", fileName);
+          ("mimeType", mimeType);
+      } else {
+          //take the first file
+          fileToUpload = files[0];
+          fileName = fileToUpload.name;
+          mimeType = fileToUpload.type;
+      }
+      const storageRef = ref(storage, 'uploads/' + fileName);
+      ("storageRef", storageRef);
+
+      //set metadata with the correct content type
+      const metadata = {
+          contentType: mimeType,
+      };
+
+      ("metadata", metadata);
+
+      //upload file/zip with metadata
+      const snapshot = await uploadBytes(storageRef, fileToUpload, metadata);
+      ('Uploaded a blob or file!', snapshot);
 
   try {
     const encryptedLinks = [];
