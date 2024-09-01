@@ -115,8 +115,12 @@ encryptForm.addEventListener('submit', async (e) => {
     const encryptedLinks = [];
 
     for (const { name, file } of uploadFiles) {
-      // Encrypt each file or zip
-      const encryptedFile = new Blob([encrypt(await file.text(), key)], { type: file.type });
+      // For binary data like zip files, use arrayBuffer
+      const fileBuffer = await file.arrayBuffer();
+      const wordArray = CryptoJS.lib.WordArray.create(fileBuffer);
+      const encryptedData = encrypt(wordArray, key);
+      const encryptedFile = new Blob([encryptedData], { type: file.type });
+
       const fileRef = ref(storage, `uploads/${name}`);
       await uploadBytes(fileRef, encryptedFile);
       const downloadURL = await getDownloadURL(fileRef);
