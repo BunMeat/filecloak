@@ -98,25 +98,39 @@ async function storeMetadataInFirestore(userId, downloadURL, encryptedLink) {
   }
 }
 
-// Helper function to display encrypted links
-function displayEncryptedLink(encryptedLink) {
-  const outputTextArea = document.createElement('textarea');
-  outputTextArea.value = encryptedLink;
-  outputTextArea.rows = 3;
-  outputTextArea.cols = 50;
+// Helper function to display multiple encrypted links
+function displayEncryptedLink(encryptedLinks) {
+  const encryptedOutputsContainer = document.getElementById('encryptedOutputsContainer');
+  encryptedOutputsContainer.innerHTML = ''; // Clear previous outputs
 
-  const copyButton = document.createElement('button');
-  copyButton.textContent = 'Copy to Clipboard';
-  copyButton.addEventListener('click', () => {
-    navigator.clipboard.writeText(encryptedLink);
-    alert('Encrypted URL copied to clipboard!');
+  encryptedLinks.forEach((encryptedLink) => {
+    // Create a container for each encrypted link
+    const linkContainer = document.createElement('div');
+    linkContainer.style.marginTop = '15px';
+
+    const outputTextArea = document.createElement('textarea');
+    outputTextArea.value = encryptedLink;
+    outputTextArea.rows = 3;
+    outputTextArea.cols = 50;
+    outputTextArea.readOnly = true; // Make the textarea read-only
+
+    const copyButton = document.createElement('button');
+    copyButton.textContent = 'Copy to Clipboard';
+    copyButton.addEventListener('click', () => {
+      navigator.clipboard.writeText(encryptedLink)
+        .then(() => alert('Encrypted URL copied to clipboard!'))
+        .catch(err => console.error('Failed to copy: ', err));
+    });
+
+    linkContainer.appendChild(outputTextArea);
+    linkContainer.appendChild(copyButton);
+    encryptedOutputsContainer.appendChild(linkContainer);
   });
 
-  const encryptedOutputsContainer = document.getElementById('encryptedOutputsContainer');
-  encryptedOutputsContainer.appendChild(outputTextArea);
-  encryptedOutputsContainer.appendChild(copyButton);
   encryptedOutputsContainer.style.marginBottom = '15px';
 }
+
+
 
 //encrypt form
 encryptForm.addEventListener('submit', async (e) => {
@@ -126,17 +140,20 @@ encryptForm.addEventListener('submit', async (e) => {
   const key = document.getElementById('keyGen').value.trim();
   const zipFilesCheckbox = document.getElementById('zipFilesCheckbox').checked;
 
+
+  // Check user authentication
+  const user = auth.currentUser;
+  if (!user) {
+    alert('Please sign in to continue.');
+    return;
+  }
+
   if (!key) {
     alert('Please generate or provide an encryption key before proceeding.');
     return;
   }
 
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      alert('You must be signed in to upload and encrypt files.');
-      return;
-    }
 
     let fileToUpload;
     let fileName;
