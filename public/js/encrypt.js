@@ -63,7 +63,7 @@ const counter = document.getElementById('counter');
 
 keyGenLength.addEventListener('input', updateCounter);
 
-// Update char count
+// Update character count
 function updateCounter() {
   const currentLength = keyGenLength.value.length;
   const maxLength = parseInt(keyGenLength.getAttribute('maxlength'));
@@ -129,13 +129,6 @@ function displayEncryptedLink(encryptedLinks) {
 
   encryptedOutputsContainer.style.marginBottom = '15px';
 }
-
-// Add the export button to your HTML (for example, near your encrypted outputs container)
-const exportButton = document.createElement('button');
-exportButton.textContent = 'Export to .txt';
-exportButton.style.marginTop = '10px';
-exportButton.id = 'exportButton'; // Add an ID for easy reference
-document.body.appendChild(exportButton);
 
 // Function to export encrypted links to a .txt file
 function exportEncryptedLinksToFile(encryptedLinks) {
@@ -230,32 +223,41 @@ encryptForm.addEventListener('submit', async (e) => {
 
         // Step 1: Upload to Firebase Storage
         await uploadBytes(fileRef, file);
-        console.log(`Uploaded file ${file.name} as ${uniqueFileName}`);
+        console.log(`Uploaded file ${file.name} as ${uniqueFileName} to Firebase Storage`);
 
         // Step 2: Get the download URL
         const downloadURL = await getDownloadURL(fileRef);
-        console.log('Download URL for the file:', downloadURL);
+        console.log(`Download URL for file ${file.name}:`, downloadURL);
 
         // Step 3: Encrypt the download URL
         const encryptedLink = encrypt(downloadURL, key);
-
-        // Step 4: Display the encrypted URL
-        displayEncryptedLink([encryptedLink]);
-
-        // Step 5: Store metadata in Firestore
-        await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink);
-
-        // Add encrypted link to array
         encryptedLinks.push(encryptedLink);
+
+        // Step 4: Store metadata in Firestore
+        await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink);
       }
+
+      // Display all encrypted URLs
+      displayEncryptedLink(encryptedLinks);
     }
 
-    // Handle export button click
-    document.getElementById('exportButton').addEventListener('click', () => {
+    // Add export button logic
+    const exportButton = document.createElement('button');
+    exportButton.textContent = 'Export to .txt';
+    exportButton.style.marginTop = '10px';
+    exportButton.addEventListener('click', () => {
       exportEncryptedLinksToFile(encryptedLinks);
     });
 
+    // Append the export button if not already present
+    const existingExportButton = document.querySelector('#encryptedOutputsContainer + button');
+    if (!existingExportButton) {
+      document.body.appendChild(exportButton);
+    }
+
+    alert('Files have been processed successfully!');
   } catch (error) {
-    console.error('Error encrypting and uploading files:', error);
+    console.error('Upload failed', error);
+    alert('Upload failed: ' + error.message);
   }
 });
