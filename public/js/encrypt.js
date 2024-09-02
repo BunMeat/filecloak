@@ -130,6 +130,32 @@ function displayEncryptedLink(encryptedLinks) {
   encryptedOutputsContainer.style.marginBottom = '15px';
 }
 
+// Add the export button to your HTML (for example, near your encrypted outputs container)
+const exportButton = document.createElement('button');
+exportButton.textContent = 'Export to .txt';
+exportButton.style.marginTop = '10px';
+document.body.appendChild(exportButton);
+
+// Function to export encrypted links to a .txt file
+function exportEncryptedLinksToFile(encryptedLinks) {
+  if (encryptedLinks.length === 0) {
+    alert('No encrypted links to export!');
+    return;
+  }
+
+  // Create a blob from the encrypted links array
+  const blob = new Blob([encryptedLinks.join('\n')], { type: 'text/plain' });
+
+  // Create a link element to trigger the download
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'encrypted_links.txt';
+  a.click();
+
+  // Clean up by revoking the object URL
+  URL.revokeObjectURL(a.href);
+}
+
 encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const fileInput = document.getElementById('fileInput');
@@ -184,10 +210,14 @@ encryptForm.addEventListener('submit', async (e) => {
       const encryptedLink = encrypt(downloadURL, key);
 
       // Step 4: Display the encrypted URL
-      displayEncryptedLink([encryptedLink]); // Wrap in array
+      displayEncryptedLink([encryptedLink]);
 
       // Step 5: Store metadata in Firestore
       await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink);
+
+      // Add encrypted link to array
+      encryptedLinks.push(encryptedLink);
+
     } else {
       // Case 2: Encrypt and upload each file individually
       for (const file of files) {
@@ -215,6 +245,20 @@ encryptForm.addEventListener('submit', async (e) => {
 
       // Display all encrypted URLs
       displayEncryptedLink(encryptedLinks);
+    }
+
+    // Add export button logic
+    const exportButton = document.createElement('button');
+    exportButton.textContent = 'Export to .txt';
+    exportButton.style.marginTop = '10px';
+    exportButton.addEventListener('click', () => {
+      exportEncryptedLinksToFile(encryptedLinks);
+    });
+
+    // Append the export button if not already present
+    const existingExportButton = document.querySelector('#encryptedOutputsContainer + button');
+    if (!existingExportButton) {
+      document.body.appendChild(exportButton);
     }
 
     alert('Files have been processed successfully!');
