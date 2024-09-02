@@ -140,7 +140,6 @@ encryptForm.addEventListener('submit', async (e) => {
   const key = document.getElementById('keyGen').value.trim();
   const zipFilesCheckbox = document.getElementById('zipFilesCheckbox').checked;
 
-
   // Check user authentication
   const user = auth.currentUser;
   if (!user) {
@@ -154,7 +153,6 @@ encryptForm.addEventListener('submit', async (e) => {
   }
 
   try {
-
     let fileToUpload;
     let fileName;
     let mimeType;
@@ -196,12 +194,15 @@ encryptForm.addEventListener('submit', async (e) => {
     } else {
       // Case 2: Encrypt and upload each file individually
       for (const file of files) {
+        // Generate a unique file name using the original file name and a timestamp
+        const uniqueFileName = `${Date.now()}_${file.name}`;
+
         // Set up for Firebase Storage upload
-        const fileRef = ref(storage, `uploads/${file.name}`);
+        const fileRef = ref(storage, `uploads/${uniqueFileName}`);
 
         // Step 1: Upload to Firebase Storage
         await uploadBytes(fileRef, file);
-        console.log(`Uploaded file ${file.name} to Firebase Storage`);
+        console.log(`Uploaded file ${file.name} as ${uniqueFileName} to Firebase Storage`);
 
         // Step 2: Get the download URL
         const downloadURL = await getDownloadURL(fileRef);
