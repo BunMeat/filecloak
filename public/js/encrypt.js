@@ -130,9 +130,6 @@ function displayEncryptedLink(encryptedLinks) {
   encryptedOutputsContainer.style.marginBottom = '15px';
 }
 
-
-
-//encrypt form
 encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const fileInput = document.getElementById('fileInput');
@@ -187,7 +184,7 @@ encryptForm.addEventListener('submit', async (e) => {
       const encryptedLink = encrypt(downloadURL, key);
 
       // Step 4: Display the encrypted URL
-      displayEncryptedLink(encryptedLink);
+      displayEncryptedLink([encryptedLink]); // Wrap in array
 
       // Step 5: Store metadata in Firestore
       await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink);
@@ -217,7 +214,7 @@ encryptForm.addEventListener('submit', async (e) => {
       }
 
       // Display all encrypted URLs
-      encryptedLinks.forEach((link) => displayEncryptedLink(link));
+      displayEncryptedLink(encryptedLinks);
     }
 
     alert('Files have been processed successfully!');
