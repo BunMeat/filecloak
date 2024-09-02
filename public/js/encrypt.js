@@ -3,7 +3,7 @@ import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-aut
 import { getFirestore, collection, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
 
-//firebase
+// Firebase config
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
   authDomain: window.env.FIREBASEAUTHDOMAIN,
@@ -20,7 +20,7 @@ const storage = getStorage(firebaseApp);
 
 const encryptForm = document.getElementById('encryptForm');
 
-//encrypt function
+// Encrypt function
 function encrypt(text, key) {
   if (key.length !== 32) {
     throw new Error('Invalid key length. Key must be 32 characters long.');
@@ -37,22 +37,22 @@ function encrypt(text, key) {
 
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text)
-  .then(() => {
-      ('Text copied to clipboard:', text);
-      alert('Text has been copied to clipboard!');
-  })
-  .catch((error) => {
-      console.error('Unable to copy to clipboard:', error);
-  });
+    .then(() => {
+        console.log('Text copied to clipboard:', text);
+        alert('Text has been copied to clipboard!');
+    })
+    .catch((error) => {
+        console.error('Unable to copy to clipboard:', error);
+    });
 }
 
-//copy button call
+// Copy button call
 document.getElementById('copyButton').addEventListener('click', function() {
   const keyGenerated = document.getElementById('keyGen').value;
   copyToClipboard(keyGenerated);
 });
 
-//generate key
+// Generate key
 document.getElementById('keyGenButton').addEventListener('click', function() {
   const randomBytes = CryptoJS.lib.WordArray.random(32); 
   document.getElementById('keyGen').value = randomBytes.toString(CryptoJS.enc.Hex).slice(0, 32);
@@ -61,9 +61,9 @@ document.getElementById('keyGenButton').addEventListener('click', function() {
 const keyGenLength = document.getElementById('keyGen');
 const counter = document.getElementById('counter');
 
-keyGen.addEventListener('input', updateCounter);
+keyGenLength.addEventListener('input', updateCounter);
 
-//update char count
+// Update character count
 function updateCounter() {
   const currentLength = keyGenLength.value.length;
   const maxLength = parseInt(keyGenLength.getAttribute('maxlength'));
@@ -129,12 +129,6 @@ function displayEncryptedLink(encryptedLinks) {
 
   encryptedOutputsContainer.style.marginBottom = '15px';
 }
-
-// Add the export button to your HTML (for example, near your encrypted outputs container)
-const exportButton = document.createElement('button');
-exportButton.textContent = 'Export to .txt';
-exportButton.style.marginTop = '10px';
-document.body.appendChild(exportButton);
 
 // Function to export encrypted links to a .txt file
 function exportEncryptedLinksToFile(encryptedLinks) {
