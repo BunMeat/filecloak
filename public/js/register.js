@@ -1,7 +1,6 @@
 import { initializeApp as initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
 import { getAuth as getAuth, createUserWithEmailAndPassword as createUserWithEmailAndPassword, PhoneAuthProvider as PhoneAuthProvider, multiFactor as multiFactor, RecaptchaVerifier as RecaptchaVerifier } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
-import { getFirestore as getFirestore, collection as collection, doc as doc, setDoc as setDoc 
-} from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
+import { getFirestore as getFirestore, collection as collection, doc as doc, setDoc as setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
@@ -35,7 +34,7 @@ registrationForm.addEventListener('submit', async (e) => {
       console.log('User registered:', user);
 
       // Set up reCAPTCHA verifier for phone authentication
-      const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {}, auth);
+      const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {});
       recaptchaVerifier.render();
 
       // Prompt the user to enroll in MFA with a phone number
