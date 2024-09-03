@@ -98,10 +98,14 @@ async function storeMetadataInFirestore(userId, downloadURL, encryptedLink) {
   }
 }
 
-// Updated function to export encrypted links along with the key
-function exportEncryptedLinksToFile(encryptedLinks, encryptionKey) {
-  // Add the encryption key at the top of the file, followed by a blank line for separation
-  const fileContent = `Encryption Key: ${encryptionKey}\n\n` + `Encryption Tokens:\n\n` + encryptedLinks.join('\n\n');
+function exportEncryptedLinksToFile(encryptedLinks, encryptionKey, fileNames) {
+  // Start the file content with the encryption key and a separator
+  let fileContent = `Encryption Key: ${encryptionKey}\n\nEncryption Tokens:\n\n`;
+
+  // Append each file name and its corresponding encrypted link to the file content
+  encryptedLinks.forEach((encryptedLink, index) => {
+    fileContent += `File: ${fileNames[index]}\nEncrypted URL: ${encryptedLink}\n\n`;
+  });
 
   // Create a Blob with the file content and set the MIME type to text/plain
   const blob = new Blob([fileContent], { type: 'text/plain' });
@@ -117,7 +121,8 @@ function exportEncryptedLinksToFile(encryptedLinks, encryptionKey) {
   document.body.removeChild(a);
 }
 
-function displayEncryptedLink(encryptedLinks) {
+
+function displayEncryptedLink(encryptedLinks, fileName) {
   const encryptedOutputsContainer = document.getElementById('encryptedOutputsContainer');
   encryptedOutputsContainer.innerHTML = ''; // Clear previous outputs
 
@@ -155,7 +160,9 @@ function displayEncryptedLink(encryptedLinks) {
     exportButton.style.marginTop = '10px';
     exportButton.addEventListener('click', () => {
       const encryptionKey = document.getElementById('keyGen').value.trim(); // Get the encryption key from the input field
-      exportEncryptedLinksToFile(encryptedLinks, encryptionKey);
+      fileName = files.map(file => file.name); // Get an array of file names
+      exportEncryptedLinksToFile(encryptedLinks, encryptionKey, fileNames); // Call the function with all necessary data
+
     });
 
     encryptedOutputsContainer.appendChild(exportButton);
@@ -218,12 +225,13 @@ encryptForm.addEventListener('submit', async (e) => {
       const encryptedLink = encrypt(downloadURL, key);
 
       // Step 4: Display the encrypted URL
-      displayEncryptedLink([encryptedLink]); // Wrap in array
+      displayEncryptedLink([encryptedLink], fileName); // Wrap in array
 
       // Step 5: Store metadata in Firestore
       await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink);
     } else {
       // Case 2: Encrypt and upload each file individually
+      const fileNames = [];
       for (const file of files) {
         // Generate a unique file name using the original file name and a timestamp
         const uniqueFileName = `${Date.now()}_${file.name}`;
@@ -242,13 +250,14 @@ encryptForm.addEventListener('submit', async (e) => {
         // Step 3: Encrypt the download URL
         const encryptedLink = encrypt(downloadURL, key);
         encryptedLinks.push(encryptedLink);
+        fileNames.push(file.name);
 
         // Step 4: Store metadata in Firestore
         await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink);
       }
 
       // Display all encrypted URLs
-      displayEncryptedLink(encryptedLinks);
+      displayEncryptedLink(encryptedLinks, fileNames);
     }
 
     alert('Files have been processed successfully!');
