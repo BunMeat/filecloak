@@ -15,6 +15,23 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 
+// Ensure the reCAPTCHA container exists before initializing
+document.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('recaptcha-container')) {
+    const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      'size': 'invisible', // or 'normal' for visible reCAPTCHA
+      'callback': (response) => {
+        console.log('reCAPTCHA solved', response);
+      }
+    });
+
+    // Render reCAPTCHA
+    recaptchaVerifier.render().then((widgetId) => {
+      window.recaptchaWidgetId = widgetId;
+    });
+  }
+});
+
 // Registration Function
 const registrationForm = document.getElementById('registerForm');
 
