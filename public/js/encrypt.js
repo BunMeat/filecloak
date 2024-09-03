@@ -98,6 +98,7 @@ async function storeMetadataInFirestore(userId, downloadURL, encryptedLink) {
   }
 }
 
+// Updated function to export encrypted links along with the key
 function exportEncryptedLinksToFile(encryptedLinks, encryptionKey, fileNames) {
   // Start the file content with the encryption key and a separator
   let fileContent = `Encryption Key: ${encryptionKey}\n\nEncryption Tokens:\n\n`;
@@ -121,12 +122,11 @@ function exportEncryptedLinksToFile(encryptedLinks, encryptionKey, fileNames) {
   document.body.removeChild(a);
 }
 
-
-function displayEncryptedLink(encryptedLinks, fileName) {
+function displayEncryptedLink(encryptedLinks, fileNames) {
   const encryptedOutputsContainer = document.getElementById('encryptedOutputsContainer');
   encryptedOutputsContainer.innerHTML = ''; // Clear previous outputs
 
-  encryptedLinks.forEach((encryptedLink) => {
+  encryptedLinks.forEach((encryptedLink, index) => {
     // Create a container for each encrypted link
     const linkContainer = document.createElement('div');
     linkContainer.style.marginTop = '15px';
@@ -160,9 +160,7 @@ function displayEncryptedLink(encryptedLinks, fileName) {
     exportButton.style.marginTop = '10px';
     exportButton.addEventListener('click', () => {
       const encryptionKey = document.getElementById('keyGen').value.trim(); // Get the encryption key from the input field
-      fileName = files.map(file => file.name); // Get an array of file names
-      exportEncryptedLinksToFile(encryptedLinks, encryptionKey, fileNames); // Call the function with all necessary data
-
+      exportEncryptedLinksToFile(encryptedLinks, encryptionKey, fileNames); // Pass fileNames correctly here
     });
 
     encryptedOutputsContainer.appendChild(exportButton);
@@ -195,12 +193,14 @@ encryptForm.addEventListener('submit', async (e) => {
     let fileName;
     let mimeType;
     const encryptedLinks = [];
+    const fileNames = [];
 
     if (zipFilesCheckbox) {
       // Case 1: Zip and encrypt multiple files
       const zip = new JSZip();
       for (let file of files) {
         zip.file(file.name, file); // Add files to the zip
+        fileNames.push(file.name); // Collect file names for export
       }
 
       // Generate zip content as a Blob
@@ -225,13 +225,12 @@ encryptForm.addEventListener('submit', async (e) => {
       const encryptedLink = encrypt(downloadURL, key);
 
       // Step 4: Display the encrypted URL
-      displayEncryptedLink([encryptedLink], fileName); // Wrap in array
+      displayEncryptedLink([encryptedLink], fileNames); // Pass fileNames as array
 
       // Step 5: Store metadata in Firestore
       await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink);
     } else {
       // Case 2: Encrypt and upload each file individually
-      const fileNames = [];
       for (const file of files) {
         // Generate a unique file name using the original file name and a timestamp
         const uniqueFileName = `${Date.now()}_${file.name}`;
@@ -257,7 +256,7 @@ encryptForm.addEventListener('submit', async (e) => {
       }
 
       // Display all encrypted URLs
-      displayEncryptedLink(encryptedLinks, fileNames);
+      displayEncryptedLink(encryptedLinks, fileNames); // Pass fileNames correctly
     }
 
     alert('Files have been processed successfully!');
