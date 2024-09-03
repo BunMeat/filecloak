@@ -27,7 +27,7 @@ const firestore = getFirestore(firebaseApp);
 // Ensure the reCAPTCHA container exists before initializing
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('recaptcha-container')) {
-    const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
+    const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
       'size': 'invisible', // or 'normal' for visible reCAPTCHA
       'callback': (response) => {
         console.log('reCAPTCHA solved', response);
