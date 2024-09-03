@@ -34,7 +34,7 @@ registrationForm.addEventListener('submit', async (e) => {
       console.log('User registered:', user);
 
       // Set up reCAPTCHA verifier for phone authentication
-      const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {}, auth);
+      const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {}, auth);
       recaptchaVerifier.render();
 
       // Prompt the user to enroll in MFA with a phone number

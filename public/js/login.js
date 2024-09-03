@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'callback': (response) => {
         console.log('reCAPTCHA solved', response);
       }
-    }, auth);
+    });
 
     // Render reCAPTCHA
     recaptchaVerifier.render().then((widgetId) => {
