@@ -25,15 +25,23 @@
                 <input type="password" id="repeatPassword" name="repeatPassword" placeholder="Repeat Password" required>
                 <i class="icon password-icon"></i> 
             </div>
+            <!-- Add Phone Number Input for MFA -->
+            <div class="input-group">
+                <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="Phone Number (for MFA)" required>
+                <i class="icon phone-icon"></i>
+            </div>
             <button type="submit" class="button" value="Register">SIGNUP</button>
             <button type="button" class="button login-btn" onclick="toggleForms()">Login</button>
         </form>
+        
+        <!-- Add reCAPTCHA container for MFA -->
+        <div id="recaptcha-container"></div>
     </div>
     <script>
         function toggleForms() {
-            window.location.href="./Login.html"
+            window.location.href = "./Login.html";
         }
     </script>
-    <script type ="module" src='../js/register.js'></script>
+    <script type="module" src='../js/register.js'></script>
 </body>
 </html>

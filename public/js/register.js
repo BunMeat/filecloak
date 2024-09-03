@@ -1,5 +1,5 @@
 import { initializeApp as initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
-import { getAuth as getAuth, createUserWithEmailAndPassword as createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
+import { getAuth as getAuth, createUserWithEmailAndPassword as createUserWithEmailAndPassword, PhoneAuthProvider as PhoneAuthProvider, multiFactor as multiFactor, RecaptchaVerifier as RecaptchaVerifier } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
 import { getFirestore as getFirestore, collection as collection, doc as doc, setDoc as setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -31,8 +31,24 @@ registrationForm.addEventListener('submit', async (e) => {
     } else {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      ('User registered:', user);
+      console.log('User registered:', user);
 
+      // Set up reCAPTCHA verifier for phone authentication
+      const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {}, auth);
+      recaptchaVerifier.render();
+
+      // Prompt the user to enroll in MFA with a phone number
+      const phoneNumber = prompt("Please enter your phone number for MFA enrollment:");
+      const phoneProvider = new PhoneAuthProvider(auth);
+      const verificationId = await phoneProvider.verifyPhoneNumber(phoneNumber, recaptchaVerifier);
+      
+      const verificationCode = prompt("Please enter the verification code sent to your phone:");
+      const credential = PhoneAuthProvider.credential(verificationId, verificationCode);
+
+      // Enroll the user in MFA with the phone credential
+      await multiFactor(user).enroll(credential, 'Phone number');
+
+      // Save user data to Firestore
       const userCollection = collection(firestore, "users");
       const userId = user.uid;
       const userRefDoc = doc(userCollection, userId);
@@ -42,8 +58,9 @@ registrationForm.addEventListener('submit', async (e) => {
         email: email
       };
       await setDoc(userRefDoc, userData);
-      alert("Pendaftaran User Berhasil, Silahkan Login");
-      ('User registered and data saved to Firestore:', user);
+
+      alert("Pendaftaran User Berhasil dengan MFA, Silahkan Login");
+      console.log('User registered and data saved to Firestore:', user);
     }
   } catch (error) {
     const errorCode = error.code;
@@ -51,7 +68,7 @@ registrationForm.addEventListener('submit', async (e) => {
     if (errorCode === 'auth/email-already-in-use') {
       alert("Email Sudah Terdaftar");
     } else {
-      alert("Kesalahan Server", errorMessage);
+      alert("Kesalahan Server: " + errorMessage);
     }
     console.error('Registration error:', errorMessage);
   }
