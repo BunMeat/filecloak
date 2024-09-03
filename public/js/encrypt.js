@@ -3,7 +3,7 @@ import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-aut
 import { getFirestore, collection, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
 
-// Firebase config
+//firebase
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
   authDomain: window.env.FIREBASEAUTHDOMAIN,
@@ -20,7 +20,7 @@ const storage = getStorage(firebaseApp);
 
 const encryptForm = document.getElementById('encryptForm');
 
-// Encrypt function
+//encrypt function
 function encrypt(text, key) {
   if (key.length !== 32) {
     throw new Error('Invalid key length. Key must be 32 characters long.');
@@ -37,22 +37,22 @@ function encrypt(text, key) {
 
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text)
-    .then(() => {
-        console.log('Text copied to clipboard:', text);
-        alert('Text has been copied to clipboard!');
-    })
-    .catch((error) => {
-        console.error('Unable to copy to clipboard:', error);
-    });
+  .then(() => {
+      ('Text copied to clipboard:', text);
+      alert('Text has been copied to clipboard!');
+  })
+  .catch((error) => {
+      console.error('Unable to copy to clipboard:', error);
+  });
 }
 
-// Copy button call
+//copy button call
 document.getElementById('copyButton').addEventListener('click', function() {
   const keyGenerated = document.getElementById('keyGen').value;
   copyToClipboard(keyGenerated);
 });
 
-// Generate key
+//generate key
 document.getElementById('keyGenButton').addEventListener('click', function() {
   const randomBytes = CryptoJS.lib.WordArray.random(32); 
   document.getElementById('keyGen').value = randomBytes.toString(CryptoJS.enc.Hex).slice(0, 32);
@@ -61,9 +61,9 @@ document.getElementById('keyGenButton').addEventListener('click', function() {
 const keyGenLength = document.getElementById('keyGen');
 const counter = document.getElementById('counter');
 
-keyGenLength.addEventListener('input', updateCounter);
+keyGen.addEventListener('input', updateCounter);
 
-// Update character count
+//update char count
 function updateCounter() {
   const currentLength = keyGenLength.value.length;
   const maxLength = parseInt(keyGenLength.getAttribute('maxlength'));
@@ -98,6 +98,27 @@ async function storeMetadataInFirestore(userId, downloadURL, encryptedLink) {
   }
 }
 
+// Function to export encrypted links to a .txt file
+function exportEncryptedLinksToFile(encryptedLinks) {
+  if (encryptedLinks.length === 0) {
+    alert('No encrypted links to export!');
+    return;
+  }
+
+  // Create a blob from the encrypted links array
+  const blob = new Blob([encryptedLinks.join('\n')], { type: 'text/plain' });
+
+  // Create a link element to trigger the download
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'encrypted_links.txt';
+  a.click();
+
+  // Clean up by revoking the object URL
+  URL.revokeObjectURL(a.href);
+}
+
+
 // Helper function to display multiple encrypted links
 function displayEncryptedLink(encryptedLinks) {
   const encryptedOutputsContainer = document.getElementById('encryptedOutputsContainer');
@@ -127,27 +148,20 @@ function displayEncryptedLink(encryptedLinks) {
     encryptedOutputsContainer.appendChild(linkContainer);
   });
 
-  encryptedOutputsContainer.style.marginBottom = '15px';
-}
+  // Add the export button if it doesn't exist
+  if (!document.getElementById('exportButton')) {
+    const exportButton = document.createElement('button');
+    exportButton.textContent = 'Export to .txt';
+    exportButton.id = 'exportButton'; // Add an ID for easy reference
+    exportButton.style.marginTop = '10px';
+    exportButton.addEventListener('click', () => {
+      exportEncryptedLinksToFile(encryptedLinks);
+    });
 
-// Function to export encrypted links to a .txt file
-function exportEncryptedLinksToFile(encryptedLinks) {
-  if (encryptedLinks.length === 0) {
-    alert('No encrypted links to export!');
-    return;
+    encryptedOutputsContainer.appendChild(exportButton);
   }
 
-  // Create a blob from the encrypted links array
-  const blob = new Blob([encryptedLinks.join('\n')], { type: 'text/plain' });
-
-  // Create a link element to trigger the download
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'encrypted_links.txt';
-  a.click();
-
-  // Clean up by revoking the object URL
-  URL.revokeObjectURL(a.href);
+  encryptedOutputsContainer.style.marginBottom = '15px';
 }
 
 encryptForm.addEventListener('submit', async (e) => {
@@ -204,14 +218,10 @@ encryptForm.addEventListener('submit', async (e) => {
       const encryptedLink = encrypt(downloadURL, key);
 
       // Step 4: Display the encrypted URL
-      displayEncryptedLink([encryptedLink]);
+      displayEncryptedLink([encryptedLink]); // Wrap in array
 
       // Step 5: Store metadata in Firestore
       await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink);
-
-      // Add encrypted link to array
-      encryptedLinks.push(encryptedLink);
-
     } else {
       // Case 2: Encrypt and upload each file individually
       for (const file of files) {
@@ -239,20 +249,6 @@ encryptForm.addEventListener('submit', async (e) => {
 
       // Display all encrypted URLs
       displayEncryptedLink(encryptedLinks);
-    }
-
-    // Add export button logic
-    const exportButton = document.createElement('button');
-    exportButton.textContent = 'Export to .txt';
-    exportButton.style.marginTop = '10px';
-    exportButton.addEventListener('click', () => {
-      exportEncryptedLinksToFile(encryptedLinks);
-    });
-
-    // Append the export button if not already present
-    const existingExportButton = document.querySelector('#encryptedOutputsContainer + button');
-    if (!existingExportButton) {
-      document.body.appendChild(exportButton);
     }
 
     alert('Files have been processed successfully!');
