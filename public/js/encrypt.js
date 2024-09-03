@@ -98,24 +98,23 @@ async function storeMetadataInFirestore(userId, downloadURL, encryptedLink) {
   }
 }
 
-// Function to export encrypted links to a .txt file
-function exportEncryptedLinksToFile(encryptedLinks) {
-  if (encryptedLinks.length === 0) {
-    alert('No encrypted links to export!');
-    return;
-  }
+// Updated function to export encrypted links along with the key
+function exportEncryptedLinksToFile(encryptedLinks, encryptionKey) {
+  // Add the encryption key at the top of the file, followed by a blank line for separation
+  const fileContent = `Encryption Key: ${encryptionKey}\n\n` + encryptedLinks.join('\n\n');
 
-  // Create a blob from the encrypted links array
-  const blob = new Blob([encryptedLinks.join('\n')], { type: 'text/plain' });
+  // Create a Blob with the file content and set the MIME type to text/plain
+  const blob = new Blob([fileContent], { type: 'text/plain' });
 
-  // Create a link element to trigger the download
+  // Create a temporary link element
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'encrypted_links.txt';
-  a.click();
 
-  // Clean up by revoking the object URL
-  URL.revokeObjectURL(a.href);
+  // Append the link to the document, click it to start the download, and then remove it
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 function displayEncryptedLink(encryptedLinks) {
@@ -155,7 +154,8 @@ function displayEncryptedLink(encryptedLinks) {
     exportButton.type = 'button'; // Prevent form submission
     exportButton.style.marginTop = '10px';
     exportButton.addEventListener('click', () => {
-      exportEncryptedLinksToFile(encryptedLinks);
+      const encryptionKey = document.getElementById('keyGen').value.trim(); // Get the encryption key from the input field
+      exportEncryptedLinksToFile(encryptedLinks, encryptionKey);
     });
 
     encryptedOutputsContainer.appendChild(exportButton);
@@ -163,7 +163,6 @@ function displayEncryptedLink(encryptedLinks) {
 
   encryptedOutputsContainer.style.marginBottom = '15px';
 }
-
 
 encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
