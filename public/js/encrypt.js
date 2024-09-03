@@ -101,7 +101,7 @@ async function storeMetadataInFirestore(userId, downloadURL, encryptedLink) {
 // Updated function to export encrypted links along with the key
 function exportEncryptedLinksToFile(encryptedLinks, encryptionKey) {
   // Add the encryption key at the top of the file, followed by a blank line for separation
-  const fileContent = `Encryption Key: ${encryptionKey}\n\n` + encryptedLinks.join('\n\n');
+  const fileContent = `Encryption Key: ${encryptionKey}\n\n` + `Encryption Tokens:\n\n` + encryptedLinks.join('\n\n');
 
   // Create a Blob with the file content and set the MIME type to text/plain
   const blob = new Blob([fileContent], { type: 'text/plain' });
