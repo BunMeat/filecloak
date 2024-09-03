@@ -118,8 +118,6 @@ function exportEncryptedLinksToFile(encryptedLinks) {
   URL.revokeObjectURL(a.href);
 }
 
-
-// Helper function to display multiple encrypted links
 function displayEncryptedLink(encryptedLinks) {
   const encryptedOutputsContainer = document.getElementById('encryptedOutputsContainer');
   encryptedOutputsContainer.innerHTML = ''; // Clear previous outputs
@@ -137,6 +135,7 @@ function displayEncryptedLink(encryptedLinks) {
 
     const copyButton = document.createElement('button');
     copyButton.textContent = 'Copy to Clipboard';
+    copyButton.type = 'button'; // Prevent form submission
     copyButton.addEventListener('click', () => {
       navigator.clipboard.writeText(encryptedLink)
         .then(() => alert('Encrypted URL copied to clipboard!'))
@@ -153,6 +152,7 @@ function displayEncryptedLink(encryptedLinks) {
     const exportButton = document.createElement('button');
     exportButton.textContent = 'Export to .txt';
     exportButton.id = 'exportButton'; // Add an ID for easy reference
+    exportButton.type = 'button'; // Prevent form submission
     exportButton.style.marginTop = '10px';
     exportButton.addEventListener('click', () => {
       exportEncryptedLinksToFile(encryptedLinks);
@@ -163,6 +163,7 @@ function displayEncryptedLink(encryptedLinks) {
 
   encryptedOutputsContainer.style.marginBottom = '15px';
 }
+
 
 encryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
