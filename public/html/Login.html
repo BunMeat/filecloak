@@ -24,18 +24,12 @@
             <button type="submit" class="button" value="Login">LOGIN</button>
             <button type="button" class="button signup-btn" onclick="toggleForms()">Signup</button>
         </form>
-        
-        <!-- Add reCAPTCHA container for MFA -->
-        <div id="recaptcha-container"></div>
     </div>
-    
     <script>
         function toggleForms() {
-            window.location.href = "./register.html";
+            window.location.href="./register.html"
         }
     </script>
-    
-    <!-- Include Firebase scripts and your login script -->
-    <script type="module" src="../js/login.js"></script>
+    <script type ="module" src='../js/login.js'></script>
 </body>
 </html>
