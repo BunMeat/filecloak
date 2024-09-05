@@ -1,5 +1,5 @@
 import { initializeApp as initializeApp} from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
-import { getAuth as getAuth, signInWithEmailAndPassword as signInWithEmailAndPassword, PhoneAuthProvider as PhoneAuthProvider, multiFactor as multiFactor, getMultiFactorResolver as getMultiFactorResolver, RecaptchaVerifier as RecaptchaVerifier } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
+import { getAuth as getAuth, signInWithEmailAndPassword as signInWithEmailAndPassword, PhoneAuthProvider as PhoneAuthProvider, multiFactor as multiFactor, getMultiFactorResolver as getMultiFactorResolver } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
 import { getFirestore as getFirestore, doc as doc, getDoc as getDoc} from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
 // Firebase configuration
@@ -31,6 +31,37 @@ const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
 // Render reCAPTCHA
 recaptchaVerifier.render().then((widgetId) => {
   window.recaptchaWidgetId = widgetId;
+});
+
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const email = document.getElementById('emailLogin').value;
+  const password = document.getElementById('passwordLogin').value;
+  
+  try {
+    // Sign in with email and password
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Check if the user has multi-factor authentication enabled
+    if (multiFactor(user).enrolledFactors.length > 0) {
+      // MFA is enabled, handle the second-factor authentication
+      handleMFA(user);
+    } else {
+      // MFA is not enabled, proceed with the normal login flow
+      await afterLogin(user);
+    }
+    
+  } catch (error) {
+    if (error.code === 'auth/multi-factor-auth-required') {
+      // MFA is required, resolve it
+      const resolver = getMultiFactorResolver(auth, error);
+      handleSecondFactor(resolver);
+    } else {
+      handleError(error);
+    }
+  }
 });
 
 // Function to handle MFA enrollment
@@ -104,36 +135,5 @@ window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-contai
   'size': 'invisible',
   'callback': function (response) {
     console.log('reCAPTCHA resolved');
-  }
-});
-
-loginForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const email = document.getElementById('emailLogin').value;
-  const password = document.getElementById('passwordLogin').value;
-  
-  try {
-    // Sign in with email and password
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    
-    // Check if the user has multi-factor authentication enabled
-    if (multiFactor(user).enrolledFactors.length > 0) {
-      // MFA is enabled, handle the second-factor authentication
-      handleMFA(user);
-    } else {
-      // MFA is not enabled, proceed with the normal login flow
-      await afterLogin(user);
-    }
-    
-  } catch (error) {
-    if (error.code === 'auth/multi-factor-auth-required') {
-      // MFA is required, resolve it
-      const resolver = getMultiFactorResolver(auth, error);
-      handleSecondFactor(resolver);
-    } else {
-      handleError(error);
-    }
   }
 });
