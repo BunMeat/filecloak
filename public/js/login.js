@@ -19,20 +19,6 @@ const firestore = getFirestore(firebaseApp);
 
 const loginForm = document.getElementById('loginForm');
 
-// Initialize reCAPTCHA
-const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
-  'size': 'invisible', // or 'normal' for visible reCAPTCHA
-  'callback': (response) => {
-    // Handle reCAPTCHA solved event
-    console.log('reCAPTCHA solved', response);
-  }
-}, auth);
-
-// Render reCAPTCHA
-recaptchaVerifier.render().then((widgetId) => {
-  window.recaptchaWidgetId = widgetId;
-});
-
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
