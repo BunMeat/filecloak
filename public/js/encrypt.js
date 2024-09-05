@@ -78,7 +78,7 @@ function updateCounter() {
 }
 
 // Helper function to store metadata in Firestore
-async function storeMetadataInFirestore(userId, downloadURL, encryptedLink) {
+async function storeMetadataInFirestore(userId, downloadURL, encryptedLink, encryptedNote) {
   try {
     const userCollection = collection(firestore, "users");
     const userRefDoc = doc(userCollection, userId);
@@ -88,6 +88,7 @@ async function storeMetadataInFirestore(userId, downloadURL, encryptedLink) {
     const fileData = {
       timestamp: new Date().toISOString(),
       url: downloadURL,
+      encryptNote: encryptedNote,
       encryptUrl: encryptedLink,
     };
 
@@ -175,6 +176,7 @@ encryptForm.addEventListener('submit', async (e) => {
   const files = fileInput.files;
   const key = document.getElementById('keyGen').value.trim();
   const zipFilesCheckbox = document.getElementById('zipFilesCheckbox').checked;
+  const note = document.getElementById('note').value;  // Get the note input
 
   // Check user authentication
   const user = auth.currentUser;
@@ -223,12 +225,13 @@ encryptForm.addEventListener('submit', async (e) => {
 
       // Step 3: Encrypt the download URL
       const encryptedLink = encrypt(downloadURL, key);
+      const encryptedNote = encrypt(note, key);
 
       // Step 4: Display the encrypted URL
       displayEncryptedLink([encryptedLink], fileNames); // Pass fileNames as array
 
       // Step 5: Store metadata in Firestore
-      await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink);
+      await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink, encryptedNote);
     } else {
       // Case 2: Encrypt and upload each file individually
       for (const file of files) {
@@ -248,11 +251,12 @@ encryptForm.addEventListener('submit', async (e) => {
 
         // Step 3: Encrypt the download URL
         const encryptedLink = encrypt(downloadURL, key);
+        const encryptedNote = encrypt(note, key);
         encryptedLinks.push(encryptedLink);
         fileNames.push(file.name);
 
         // Step 4: Store metadata in Firestore
-        await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink);
+        await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink, encryptedNote);
       }
 
       // Display all encrypted URLs
