@@ -1,12 +1,5 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  PhoneAuthProvider, 
-  multiFactor, 
-  getMultiFactorResolver, 
-  RecaptchaVerifier 
-} from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
+import { initializeApp as initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
+import { getAuth as getAuth, signInWithEmailAndPassword as signInWithEmailAndPassword, PhoneAuthProvider as PhoneAuthProvider, multiFactor as multiFactor, getMultiFactorResolver as getMultiFactorResolver, RecaptchaVerifier as RecaptchaVerifier } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
 import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
 // Firebase configuration
@@ -24,93 +17,19 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 
-// Ensure the reCAPTCHA container exists before initializing
-document.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('recaptcha-container')) {
-    const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
-      'size': 'invisible', // or 'normal' for visible reCAPTCHA
-      'callback': (response) => {
-        console.log('reCAPTCHA solved', response);
-      }
-    }, auth);
-
-    // Render reCAPTCHA
-    recaptchaVerifier.render().then((widgetId) => {
-      window.recaptchaWidgetId = widgetId;
-    });
+// Initialize reCAPTCHA
+const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
+  'size': 'invisible', // or 'normal' for visible reCAPTCHA
+  'callback': (response) => {
+    // Handle reCAPTCHA solved event
+    console.log('reCAPTCHA solved', response);
   }
+}, auth);
+
+// Render reCAPTCHA
+recaptchaVerifier.render().then((widgetId) => {
+  window.recaptchaWidgetId = widgetId;
 });
-
-// Function to handle MFA enrollment
-async function handleMFA(user) {
-  alert('Please complete MFA verification.');
-  
-  const phoneAuthProvider = new PhoneAuthProvider(auth);
-  const phoneNumber = prompt('Enter your phone number for MFA verification:');
-
-  try {
-    // Trigger the reCAPTCHA challenge and send the verification code
-    const verificationId = await phoneAuthProvider.verifyPhoneNumber(phoneNumber, window.recaptchaVerifier);
-
-    const verificationCode = prompt('Enter the verification code sent to your phone:');
-    const cred = PhoneAuthProvider.credential(verificationId, verificationCode);
-
-    await multiFactor(user).enroll(cred);
-    alert('MFA setup is complete!');
-    await afterLogin(user);
-  } catch (error) {
-    console.error('MFA enrollment error:', error);
-    alert('Failed to complete MFA setup. Please try again.');
-  }
-}
-
-// Function to handle second-factor authentication
-async function handleSecondFactor(resolver) {
-  const phoneAuthProvider = new PhoneAuthProvider(auth);
-  const phoneNumber = prompt('Enter your phone number for MFA verification:');
-  
-  try {
-    // Trigger the reCAPTCHA challenge and send the verification code
-    const verificationId = await phoneAuthProvider.verifyPhoneNumber(phoneNumber, window.recaptchaVerifier);
-
-    const verificationCode = prompt('Enter the verification code sent to your phone:');
-    const mfaAssertion = PhoneAuthProvider.credential(verificationId, verificationCode);
-
-    // Resolve MFA sign-in
-    const userCredential = await resolver.resolveSignIn(mfaAssertion);
-    await afterLogin(userCredential.user);
-  } catch (error) {
-    console.error('Second-factor authentication error:', error);
-    alert('Failed to complete second-factor authentication. Please try again.');
-  }
-}
-
-// Function to handle errors
-function handleError(error) {
-  console.error('Login error: ', error.message);
-  alert("Server error: " + error.message);
-}
-
-// Function to execute after successful login
-async function afterLogin(user) {
-  try {
-    const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-      alert("Successfully logged in");
-      if (userData.role === "user") {
-        window.location.href = "../html/userPage.html";
-      } else {
-        window.location.href = "../html/adminPageEncrypt.html";
-      }
-    } else {
-      alert("Incorrect Email / Password");
-    }
-  } catch (error) {
-    console.error('Error fetching user data:', error);
-    alert('Error fetching user data. Please try again.');
-  }
-}
 
 const loginForm = document.getElementById('loginForm');
 
@@ -143,3 +62,56 @@ loginForm.addEventListener('submit', async (e) => {
     }
   }
 });
+
+// Function to handle MFA if it's enabled
+async function handleMFA(user) {
+  // This function should prompt the user to complete the second factor (e.g., SMS verification).
+  console.log("MFA is enabled. Handling second-factor authentication...");
+  // Add your MFA handling code here
+}
+
+// Function to handle after login process
+async function afterLogin(user) {
+  const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+  if (userDoc.exists()) {
+    const userData = userDoc.data();
+    alert("Login Successful");
+    if (userData.role === "user") {
+      window.location.href = "../html/userPage.html";
+    } else {
+      window.location.href = "../html/adminPageEncrypt.html";
+    }
+  } else {
+    alert("Incorrect Email / Password");
+  }
+}
+
+// Function to handle MFA second factor
+async function handleSecondFactor(resolver) {
+  const phoneAuthProvider = new PhoneAuthProvider(auth);
+  const phoneNumber = prompt('Enter your phone number for MFA verification:');
+  const verificationId = await phoneAuthProvider.verifyPhoneNumber(phoneNumber, window.recaptchaVerifier);
+
+  const verificationCode = prompt('Enter the verification code sent to your phone:');
+  const cred = PhoneAuthProvider.credential(verificationId, verificationCode);
+
+  const mfaAssertion = PhoneAuthProvider.credential(verificationId, verificationCode);
+  const userCredential = await resolver.resolveSignIn(mfaAssertion);
+  
+  // Proceed after MFA is resolved
+  await afterLogin(userCredential.user);
+}
+
+// Function to handle errors
+function handleError(error) {
+  const errorCode = error.code;
+  const errorMsg = error.message;
+  console.error('Login error: ', errorMsg);
+  if (errorCode === 'auth/invalid-credential') {
+    alert("Email / Password Salah");
+  } else {
+    console.error("errorMsg", errorMsg);
+    console.error("errorCode", errorCode);
+    alert("Kesalahan Server: " + errorMsg);
+  }
+}
