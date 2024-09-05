@@ -1,6 +1,6 @@
-import { initializeApp as initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
+import { initializeApp as initializeApp} from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
 import { getAuth as getAuth, signInWithEmailAndPassword as signInWithEmailAndPassword, PhoneAuthProvider as PhoneAuthProvider, multiFactor as multiFactor, getMultiFactorResolver as getMultiFactorResolver, RecaptchaVerifier as RecaptchaVerifier } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
-import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
+import { getFirestore as getFirestore, doc as doc, getDoc as getDoc} from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -17,6 +17,8 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 
+const loginForm = document.getElementById('loginForm');
+
 // Initialize reCAPTCHA
 const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
   'size': 'invisible', // or 'normal' for visible reCAPTCHA
@@ -31,62 +33,27 @@ recaptchaVerifier.render().then((widgetId) => {
   window.recaptchaWidgetId = widgetId;
 });
 
-const loginForm = document.getElementById('loginForm');
-
-loginForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const email = document.getElementById('emailLogin').value;
-  const password = document.getElementById('passwordLogin').value;
-
-  try {
-    // Sign in with email and password
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    // Check if the user has multi-factor authentication enabled
-    if (multiFactor(user).enrolledFactors.length > 0) {
-      // MFA is enabled, handle the second-factor authentication
-      await handleMFA(user);
-    } else {
-      // MFA is not enabled, proceed with the normal login flow
-      await afterLogin(user);
-    }
-  } catch (error) {
-    if (error.code === 'auth/multi-factor-auth-required') {
-      // MFA is required, resolve it
-      const resolver = getMultiFactorResolver(auth, error);
-      await handleSecondFactor(resolver);
-    } else {
-      handleError(error);
-    }
-  }
-});
-
-// Function to handle MFA if it's enabled
+// Function to handle MFA enrollment
 async function handleMFA(user) {
-  // This function should prompt the user to complete the second factor (e.g., SMS verification).
-  console.log("MFA is enabled. Handling second-factor authentication...");
-  // Add your MFA handling code here
+  // Display a prompt for the user to enroll in MFA or continue with MFA
+  alert('Please complete MFA verification.');
+
+  // Enroll in or verify MFA here
+  // This example assumes the use of phone-based MFA
+
+  const phoneAuthProvider = new PhoneAuthProvider(auth);
+  const phoneNumber = prompt('Enter your phone number for MFA verification:');
+  const verificationId = await phoneAuthProvider.verifyPhoneNumber(phoneNumber, window.recaptchaVerifier);
+
+  const verificationCode = prompt('Enter the verification code sent to your phone:');
+  const cred = PhoneAuthProvider.credential(verificationId, verificationCode);
+
+  await multiFactor(user).enroll(cred);
+  alert('MFA setup is complete!');
+  await afterLogin(user);
 }
 
-// Function to handle after login process
-async function afterLogin(user) {
-  const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-  if (userDoc.exists()) {
-    const userData = userDoc.data();
-    alert("Login Successful");
-    if (userData.role === "user") {
-      window.location.href = "../html/userPage.html";
-    } else {
-      window.location.href = "../html/adminPageEncrypt.html";
-    }
-  } else {
-    alert("Incorrect Email / Password");
-  }
-}
-
-// Function to handle MFA second factor
+// Function to handle second-factor authentication
 async function handleSecondFactor(resolver) {
   const phoneAuthProvider = new PhoneAuthProvider(auth);
   const phoneNumber = prompt('Enter your phone number for MFA verification:');
@@ -102,6 +69,22 @@ async function handleSecondFactor(resolver) {
   await afterLogin(userCredential.user);
 }
 
+// Function to execute after successful login
+async function afterLogin(user) {
+  const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+  if (userDoc.exists()) {
+    const userData = userDoc.data();
+    alert("Sukses Login");
+    if (userData.role === "user") {
+      window.location.href = "../html/userPage.html";
+    } else {
+      window.location.href = "../html/adminPageEncrypt.html";
+    }
+  } else {
+    alert("Email / Password Salah");
+  }
+}
+
 // Function to handle errors
 function handleError(error) {
   const errorCode = error.code;
@@ -115,3 +98,42 @@ function handleError(error) {
     alert("Kesalahan Server: " + errorMsg);
   }
 }
+
+// Setup reCAPTCHA for phone authentication (important step)
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+  'size': 'invisible',
+  'callback': function (response) {
+    console.log('reCAPTCHA resolved');
+  }
+});
+
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const email = document.getElementById('emailLogin').value;
+  const password = document.getElementById('passwordLogin').value;
+  
+  try {
+    // Sign in with email and password
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Check if the user has multi-factor authentication enabled
+    if (multiFactor(user).enrolledFactors.length > 0) {
+      // MFA is enabled, handle the second-factor authentication
+      handleMFA(user);
+    } else {
+      // MFA is not enabled, proceed with the normal login flow
+      await afterLogin(user);
+    }
+    
+  } catch (error) {
+    if (error.code === 'auth/multi-factor-auth-required') {
+      // MFA is required, resolve it
+      const resolver = getMultiFactorResolver(auth, error);
+      handleSecondFactor(resolver);
+    } else {
+      handleError(error);
+    }
+  }
+});
