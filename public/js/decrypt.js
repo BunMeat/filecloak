@@ -18,21 +18,6 @@ const firestore = getFirestore(firebaseApp);
 
 const decryptForm = document.getElementById('decryptForm');
 
-function copyLinkToClipboard(text) {
-  navigator.clipboard.writeText(text)
-      .then(() => {
-          alert('File URL has been copied to clipboard!');
-      })
-      .catch((error) => {
-          console.error('Unable to copy file URL to clipboard:', error);
-      });
-}
-
-document.getElementById('copyButton').addEventListener('click', function() {
-  const fileLink = document.getElementById('output').value;
-  copyLinkToClipboard(fileLink);
-});
-
 // Decrypt function for URL and notes
 function decrypt(encryptedText, key) {
   const encryptKey = CryptoJS.enc.Utf8.parse(key);
