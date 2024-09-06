@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
-import { getFirestore, collection, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
+import { getFirestore, collection, doc, getDocs } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
 //firebase
 const firebaseConfig = {
@@ -50,18 +50,28 @@ function decrypt(encryptedText, key) {
   return decryptedData;
 }
 
+// Function to export decrypted URL and note to a .txt file
+function exportToTxt(decryptedURL, decryptedNote) {
+  const text = `Decrypted URL: ${decryptedURL}\n\nDecrypted Note: ${decryptedNote}`;
+  const blob = new Blob([text], { type: 'text/plain' });
+
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'decrypted_data.txt'; // Name of the .txt file
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
 decryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   
   // Get the encrypted token and decryption key from the form
   const encryptET = document.getElementById('tokenInput').value;
   const keyET = document.getElementById('keyInput').value;
-  const decryptET = document.getElementById('output');
-  const decryptedNote = document.getElementById('note');
 
   // Decrypt the URL
   const decryptedURL = decrypt(encryptET, keyET);
-  decryptET.value = decryptedURL; // Show the decrypted URL in the output field
 
   try {
     // Query Firestore for the file data based on the decrypted URL
@@ -86,7 +96,9 @@ decryptForm.addEventListener('submit', async (e) => {
         // Decrypt the note using the same key
         const encryptedNote = foundFile.encryptNote;
         const decryptedNoteText = decrypt(encryptedNote, keyET);
-        decryptedNote.value = decryptedNoteText; // Set the decrypted note in the note field
+
+        // Export the decrypted URL and note to a .txt file
+        exportToTxt(decryptedURL, decryptedNoteText);
       } else {
         console.error('No matching document found for the decrypted URL.');
         alert('No matching document found.');
