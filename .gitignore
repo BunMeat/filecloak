@@ -1,5 +1,4 @@
 .env
 public/env.js
 filecloak-firebase-adminsdk-eylw5-1be5c13bad.json
-
-.vercel
+.github/workflow/schedule-cron.yml
