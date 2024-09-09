@@ -48,6 +48,21 @@
                 }
             });
         });
+
+        const expirationTimeInput = document.getElementById('expirationTime').value; // User-specified expiration time in hours
+        const currentTime = new Date();
+        const expirationTime = new Date(currentTime.getTime() + expirationTimeInput * 60 * 60 * 1000); // Calculate deletion time
+
+        const fileData = {
+        timestamp: currentTime.toISOString(),
+        url: downloadURL,
+        encryptNote: encryptedNote,
+        encryptUrl: encryptedLink,
+        deletionTime: expirationTime.toISOString() // Store deletion time in Firestore
+        };
+
+        await setDoc(fileDocRef, fileData);
+
     </script>
     <script type="module" src="../js/encrypt.js"></script>
 </head>

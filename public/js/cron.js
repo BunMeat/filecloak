@@ -1,44 +1,48 @@
 const cron = require('node-cron');
-const { getFirestore, collection, getDocs, doc, deleteDoc } = require('firebase-admin/firestore');
-const { getStorage, ref, deleteObject } = require('firebase-admin/storage');
+const admin = require('firebase-admin');
+const serviceAccount = require('../../filecloak-firebase-adminsdk-eylw5-1be5c13bad.json');
 
 // Initialize Firebase Admin
-const admin = require('firebase-admin');
-admin.initializeApp();
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: window.env.STORAGEBUCKET
+});
 
-const firestore = getFirestore();
-const storage = getStorage();
+const db = admin.firestore();
+const bucket = admin.storage().bucket();
 
+// Cron job: runs every hour
 cron.schedule('0 * * * *', async () => {
   console.log('Checking for expired files...');
 
   const now = new Date();
-  const userCollection = collection(firestore, 'users');
-  const usersSnapshot = await getDocs(userCollection);
+  try {
+    // Get all users
+    const usersSnapshot = await db.collection('users').get();
 
-  usersSnapshot.forEach(async (userDoc) => {
-    const filesSubCollection = collection(userDoc.ref, 'files');
-    const filesSnapshot = await getDocs(filesSubCollection);
+    usersSnapshot.forEach(async (userDoc) => {
+      const filesSnapshot = await db.collection(`users/${userDoc.id}/files`).get();
 
-    filesSnapshot.forEach(async (fileDoc) => {
-      const fileData = fileDoc.data();
+      filesSnapshot.forEach(async (fileDoc) => {
+        const fileData = fileDoc.data();
+        const deletionTime = new Date(fileData.deletionTime);
 
-      // If the current time is past the deletion time, delete the file
-      if (fileData.deletionTime.toDate() < now) {
-        const fileRef = ref(storage, fileData.url);
-        
-        // Delete file from Firebase Storage
-        await deleteObject(fileRef).catch((error) => {
-          console.error('Error deleting file from Storage:', error);
-        });
+        // If current time exceeds the deletion time, delete the file
+        if (now >= deletionTime) {
+          const fileUrl = fileData.url; // Get the file URL
+          const fileName = fileUrl.split('/').pop().split('?')[0]; // Extract the file name from the URL
 
-        // Delete file document from Firestore
-        await deleteDoc(fileDoc.ref).catch((error) => {
-          console.error('Error deleting document from Firestore:', error);
-        });
+          // Delete the file from Firebase Storage
+          await bucket.file(`uploads/${fileName}`).delete();
+          console.log(`Deleted file: ${fileName} from Firebase Storage`);
 
-        console.log('Deleted expired file:', fileData.url);
-      }
+          // Delete the document from Firestore
+          await db.collection(`users/${userDoc.id}/files`).doc(fileDoc.id).delete();
+          console.log(`Deleted Firestore entry for file: ${fileName}`);
+        }
+      });
     });
-  });
+  } catch (error) {
+    console.error('Error while deleting expired files:', error);
+  }
 });
