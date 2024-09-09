@@ -3,6 +3,17 @@ import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-aut
 import { getFirestore, collection, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
 
+// Import date-fns-tz for formatting dates (if using modules, adjust the import statement)
+const { format } = window.dateFnsTz;
+
+// Define your time zone
+const timeZone = 'Asia/Jakarta'; // WIB is the same as Asia/Jakarta
+
+// Function to format date in WIB
+function formatDateInWIB(date) {
+  return format(date, 'yyyy-MM-dd HH:mm:ssXXX', { timeZone });
+}
+
 //firebase
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
@@ -127,7 +138,7 @@ function updateCounter() {
   }
 }
 
-// Helper function to store metadata in Firestore
+// Updated function to store metadata in Firestore
 async function storeMetadataInFirestore(userId, downloadURL, encryptedLink, encryptedNote, deletionTime) {
   try {
     const userCollection = collection(firestore, "users");
@@ -136,11 +147,11 @@ async function storeMetadataInFirestore(userId, downloadURL, encryptedLink, encr
     const fileDocRef = doc(filesSubCollection);
 
     const fileData = {
-      timestamp: new Date().toISOString(),
+      timestamp: formatDateInWIB(new Date()), // Use the WIB formatted timestamp
       url: downloadURL,
       encryptNote: encryptedNote,
       encryptUrl: encryptedLink,
-      deletionTime: deletionTime.toISOString()  // Store the deletion time
+      deletionTime: formatDateInWIB(deletionTime) // Format deletion time in WIB
     };
 
     await setDoc(fileDocRef, fileData);
@@ -149,7 +160,6 @@ async function storeMetadataInFirestore(userId, downloadURL, encryptedLink, encr
     console.error('Failed to save file metadata to Firestore:', error);
   }
 }
-
 
 // Updated function to export encrypted links along with the key
 function exportEncryptedLinksToFile(encryptedLinks, encryptionKey, fileNames) {
