@@ -67,7 +67,10 @@
                         <button type="button" class="button encryptText" id="encryptTextButton">Encrypt Text</button><br>
                     </div>
                     <div class="file-input">
-                        <input type="file" id="fileInput" name="file" multiple required />
+                        <input type="file" id="fileInput" name="file" multiple required style="display:none;" />
+                        <div id="dropArea" class="drop-area">
+                            <p>Drag and Drop files here or click to browse</p>
+                        </div>
                         <label>
                             <div>
                                 <input type="checkbox" id="zipFilesCheckbox"> Zip Files

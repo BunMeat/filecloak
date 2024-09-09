@@ -46,6 +46,56 @@ function copyToClipboard(text) {
   });
 }
 
+const dropArea = document.getElementById('dropArea');
+const fileInput = document.getElementById('fileInput');
+let files;
+
+// Prevent default behaviors for drag events
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+});
+
+// Highlight the drop area when dragging files
+['dragenter', 'dragover'].forEach(eventName => {
+    dropArea.addEventListener(eventName, () => {
+        dropArea.classList.add('dragging');
+    });
+});
+
+// Remove highlight when the drag leaves the drop area
+['dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, () => {
+        dropArea.classList.remove('dragging');
+    });
+});
+
+// Handle files when they are dropped
+dropArea.addEventListener('drop', (e) => {
+    files = e.dataTransfer.files; // Get the dropped files
+    displayFileNames(files); // Show the names of dropped files
+    fileInput.files = files; // Set the files to the hidden input
+});
+
+// Also allow clicking on the drop area to trigger the file input dialog
+dropArea.addEventListener('click', () => {
+    fileInput.click(); // Open the file picker when clicking the drop area
+});
+
+fileInput.addEventListener('change', (e) => {
+    files = e.target.files; // Update files when using file picker
+    displayFileNames(files); // Display selected files
+});
+
+// Helper function to show file names in the drop area
+function displayFileNames(files) {
+    let fileNames = Array.from(files).map(file => file.name).join(', ');
+    dropArea.innerHTML = `<p>Files Selected: ${fileNames}</p>`;
+}
+
+
 //copy button call
 document.getElementById('copyButton').addEventListener('click', function() {
   const keyGenerated = document.getElementById('keyGen').value;

@@ -126,6 +126,19 @@ button:focus {
     outline: none;
 }
 
+.drop-area {
+    border: 2px dashed #cccccc;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.drop-area.dragging {
+    background-color: #f1f1f1;
+}
+
+
 @media (max-width: 768px) {
     .panel {
         grid-template-columns: 1fr;
