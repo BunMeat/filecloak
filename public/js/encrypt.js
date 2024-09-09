@@ -135,7 +135,7 @@ function displayEncryptedLink(encryptedLinks, fileNames) {
     const outputTextArea = document.createElement('textarea');
     outputTextArea.value = encryptedLink;
     outputTextArea.rows = 3;
-    outputTextArea.cols = 45;
+    outputTextArea.cols = 50;
     outputTextArea.readOnly = true; // Make the textarea read-only
 
     const copyButton = document.createElement('button');
