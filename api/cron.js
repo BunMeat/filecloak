@@ -1,11 +1,11 @@
 import admin from 'firebase-admin';
-import serviceAccount from '../../path-to-your-service-account-file.json'; // Ensure correct path
+import serviceAccount from '../filecloak-firebase-adminsdk-eylw5-1be5c13bad.json'; // Ensure correct path
 
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    storageBucket: 'your-storage-bucket-url'  // Replace with your actual bucket URL
+    storageBucket: process.env.STORAGEBUCKET  // Replace with your actual bucket URL
   });
 }
 
