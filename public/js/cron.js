@@ -1,11 +1,13 @@
 const cron = require('node-cron');
 const admin = require('firebase-admin');
-const serviceAccount = require('../../filecloak-firebase-adminsdk-eylw5-1be5c13bad.json');
 
-// Initialize Firebase Admin
+// Parse the environment variable to get the Firebase service account credentials
+const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS);
+
+// Initialize Firebase Admin SDK
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  storageBucket: window.env.STORAGEBUCKET
+  storageBucket: process.env.STORAGEBUCKET
 });
 
 const db = admin.firestore();
