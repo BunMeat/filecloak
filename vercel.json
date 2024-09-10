@@ -12,11 +12,6 @@
     ],
     "routes": [
       { "src": "/(.*)", "dest": "/" }
-    ],
-    "functions": {
-      "api/cron.js": {
-        "schedule": "0 0 * * *"
-      }
-    }
+    ]
   }
   

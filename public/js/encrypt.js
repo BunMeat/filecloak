@@ -128,7 +128,7 @@ function updateCounter() {
 }
 
 // Helper function to store metadata in Firestore
-async function storeMetadataInFirestore(userId, downloadURL, encryptedLink, encryptedNote, deletionTime) {
+async function storeMetadataInFirestore(userId, downloadURL, encryptedLink, encryptedNote) {
   try {
     const userCollection = collection(firestore, "users");
     const userRefDoc = doc(userCollection, userId);
@@ -140,7 +140,6 @@ async function storeMetadataInFirestore(userId, downloadURL, encryptedLink, encr
       url: downloadURL,
       encryptNote: encryptedNote,
       encryptUrl: encryptedLink,
-      deletionTime: deletionTime.toISOString()  // Store the deletion time
     };
 
     await setDoc(fileDocRef, fileData);
@@ -149,7 +148,6 @@ async function storeMetadataInFirestore(userId, downloadURL, encryptedLink, encr
     console.error('Failed to save file metadata to Firestore:', error);
   }
 }
-
 
 // Updated function to export encrypted links along with the key
 function exportEncryptedLinksToFile(encryptedLinks, encryptionKey, fileNames) {
@@ -229,8 +227,6 @@ encryptForm.addEventListener('submit', async (e) => {
   const key = document.getElementById('keyGen').value.trim();
   const zipFilesCheckbox = document.getElementById('zipFilesCheckbox').checked;
   const note = document.getElementById('note').value;  // Get the note input
-  const timeLimitInput = document.getElementById('timeLimit').value;  // Get the time limit input
-  const timeLimitInDays = parseInt(timeLimitInput);
 
   // Check user authentication
   const user = auth.currentUser;
@@ -243,15 +239,6 @@ encryptForm.addEventListener('submit', async (e) => {
     alert('Please generate or provide an encryption key before proceeding.');
     return;
   }
-
-  if (isNaN(timeLimitInDays) || timeLimitInDays <= 0) {
-    alert('Please provide a valid time limit in days.');
-    return;
-  }
-
-  // Calculate the deletion time based on the time limit
-  const deletionTime = new Date();
-  deletionTime.setDate(deletionTime.getDate() + timeLimitInDays);
 
   try {
     let fileToUpload;
@@ -293,8 +280,8 @@ encryptForm.addEventListener('submit', async (e) => {
       // Step 4: Display the encrypted URL
       displayEncryptedLink([encryptedLink], fileNames); // Pass fileNames as array
 
-      // Step 5: Store metadata in Firestore, including deletionTime
-      await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink, encryptedNote, deletionTime);
+      // Step 5: Store metadata in Firestore
+      await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink, encryptedNote);
     } else {
       // Case 2: Encrypt and upload each file individually
       for (const file of files) {
@@ -318,8 +305,8 @@ encryptForm.addEventListener('submit', async (e) => {
         encryptedLinks.push(encryptedLink);
         fileNames.push(file.name);
 
-        // Step 4: Store metadata in Firestore, including deletionTime
-        await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink, encryptedNote, deletionTime);
+        // Step 4: Store metadata in Firestore
+        await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink, encryptedNote);
       }
 
       // Display all encrypted URLs
