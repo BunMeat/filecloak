@@ -138,41 +138,6 @@ function updateCounter() {
   }
 }
 
-// Function to format date in WIB using Intl.DateTimeFormat
-function formatDateInWIB(date) {
-  const options = {
-    timeZone: 'Asia/Jakarta',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  };
-  
-  // Format the date
-  const formatter = new Intl.DateTimeFormat('en-GB', options);
-  const parts = formatter.formatToParts(date);
-  
-  // Reassemble the formatted date string
-  const formattedDate = parts.map(({ type, value }) => {
-    switch (type) {
-      case 'year':
-      case 'month':
-      case 'day':
-      case 'hour':
-      case 'minute':
-      case 'second':
-        return value.padStart(2, '0'); // Ensure two-digit format
-      default:
-        return value;
-    }
-  }).join('');
-  
-  return formattedDate.replace(',', ''); // Remove any commas
-}
-
 // Updated function to store metadata in Firestore
 async function storeMetadataInFirestore(userId, downloadURL, encryptedLink, encryptedNote, deletionTime) {
   try {
