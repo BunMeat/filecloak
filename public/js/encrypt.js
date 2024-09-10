@@ -3,6 +3,17 @@ import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-aut
 import { getFirestore, collection, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js';
 
+// Import date-fns-tz for formatting dates (if using modules, adjust the import statement)
+const { format } = window.dateFnsTz;
+
+// Define your time zone
+const timeZone = 'Asia/Jakarta'; // WIB is the same as Asia/Jakarta
+
+// Function to format date in WIB
+function formatDateInWIB(date) {
+  return format(date, 'yyyy-MM-dd HH:mm:ssXXX', { timeZone });
+}
+
 //firebase
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
