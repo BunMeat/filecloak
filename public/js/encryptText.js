@@ -1,17 +1,13 @@
 const encryptForm = document.getElementById('encryptForm');
 
 function encrypt(text, key) {
-  if (key.length !== 32) {
-    throw new Error('Invalid key length. Key must be 32 characters long.');
-  }
-
   const encryptKey = CryptoJS.enc.Utf8.parse(key);
   const encryptIV = CryptoJS.lib.WordArray.random(16);
 
   const encrypted = CryptoJS.AES.encrypt(text, encryptKey, { iv: encryptIV }).toString();
   
   // Concatenate the IV in Base64 format with the encrypted text
-  return encrypted + ':' + encryptIV.toString(CryptoJS.enc.Base64);
+  return encrypted + encryptIV.toString(CryptoJS.enc.Base64);
 }
 
 
@@ -48,8 +44,8 @@ document.getElementById('copyButton2').addEventListener('click', function() {
 });
 
 document.getElementById('keyGenButton').addEventListener('click', function() {
-  const randomBytes = CryptoJS.lib.WordArray.random(32); 
-  document.getElementById('keyGen').value = randomBytes.toString(CryptoJS.enc.Hex).slice(0, 32);
+  const randomBytes = CryptoJS.lib.WordArray.random(32);
+  document.getElementById('keyGen').value = randomBytes.toString(CryptoJS.enc.Hex); 
 });
 
 const keyGenLength = document.getElementById('keyGen');
