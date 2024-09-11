@@ -52,7 +52,7 @@
 <body>
     <div class="container" id="decryptForm">
         <div class="logoutButton">
-            <button type="button" class="button logout" onclick="logOut()">Logout</button><br>
+            <button class="button logout" onclick="logOut()">Logout</button><br>
         </div>
         <header>
             <img src="../asset/FileCloak.webp" alt="FileCloak Logo" class="logo">
@@ -61,16 +61,16 @@
             <div class="panel">
                 <div>
                     <div>
-                        <button type="button" class="button encrypt" onclick="goToEncrypt()">Encrypt</button><br>
+                        <button class="button encrypt" onclick="goToEncrypt()">Encrypt</button><br>
                     </div>
                     <br>
                     <div>
-                        <button type="button" class="button list" onclick="toggleForms()">Move to List</button><br>
+                        <button class="button list" onclick="toggleForms()">Move to List</button><br>
                     </div>
                 </div>
-                <div class="file-decryption" id="fileDecryption">
+                <div class="file-decryption">
                     <div>
-                        <button type="button" class="button decryptFileText" onclick="decryptText()">Decrypt Text</button><br>
+                        <button type="button" class="button decryptFileText" onclick="decryptFile()">Decrypt File</button><br>
                     </div>
                     <h2>Input Key</h2>
                     <div>
@@ -79,6 +79,10 @@
                     <h2>Input Token</h2>
                     <div>
                         <input type="text" id="tokenInput" required/>
+                    </div>
+                    <div>
+                        <textarea id="output" rows="9" cols="50" readonly></textarea><br>
+                        <button id="copyButton" type="button">Copy to Clipboard</button>
                     </div>
                     <button type="submit" class="button decrypt" value="Decrypt" id="decryptButton">Decrypt</button>
                 </div>
@@ -101,11 +105,11 @@
         }
     </script>
     <script>
-        function decryptText(){
-            window.location.href="./adminPageDecryptText.html"
+        function decryptFile() {
+            window.location.href="./adminPageDecrypt.html"
         }
     </script>
-    <script type="module" src="../js/decrypt.js"></script>
+    <script type="module" src="../js/decryptText.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </body>
 </html>
