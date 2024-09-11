@@ -31,8 +31,8 @@ function decrypt(encryptedText, key) {
     { iv: encryptIV }
   );
 
-  const decryptedData = decrypted.toString(CryptoJS.enc.Utf8);
-  return decryptedData;
+  const decryptedURL = decrypted.toString(CryptoJS.enc.Utf8);
+  return decryptedURL;
 }
 
 // Function to export decrypted URL and note to a .txt file
