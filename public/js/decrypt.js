@@ -50,7 +50,7 @@ function exportToTxt(decryptedURL, decryptedNote) {
 
 // Function to export decrypted URL and note to a .txt file
 function exportToTxt2(decryptedText) {
-  const text = `Decrypted URL: ${decryptedText}`;
+  const text = `Decrypted Text: ${decryptedText}`;
   const blob = new Blob([text], { type: 'text/plain' });
 
   const link = document.createElement('a');
