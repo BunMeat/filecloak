@@ -48,8 +48,8 @@ document.getElementById('copyButton2').addEventListener('click', function() {
 });
 
 document.getElementById('keyGenButton').addEventListener('click', function() {
-  const randomBytes = CryptoJS.lib.WordArray.random(32); 
-  document.getElementById('keyGen').value = randomBytes.toString(CryptoJS.enc.Hex).slice(0, 32);
+  const randomBytes = CryptoJS.lib.WordArray.random(32);
+  document.getElementById('keyGen').value =randomBytes.toString();
 });
 
 const keyGenLength = document.getElementById('keyGen');
