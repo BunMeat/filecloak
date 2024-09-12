@@ -48,6 +48,19 @@ function exportToTxt(decryptedURL, decryptedNote) {
   document.body.removeChild(link);
 }
 
+// Function to export decrypted URL and note to a .txt file
+function exportToTxt2(decryptedText) {
+  const text = `Decrypted URL: ${decryptedText}`;
+  const blob = new Blob([text], { type: 'text/plain' });
+
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'decrypted_data.txt'; // Name of the .txt file
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
 decryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   
@@ -85,8 +98,9 @@ decryptForm.addEventListener('submit', async (e) => {
         // Export the decrypted URL and note to a .txt file
         exportToTxt(decryptedURL, decryptedNoteText);
       } else {
-        console.error('No matching document found for the decrypted URL.');
-        alert('No matching document found.');
+        const decryptedText = decrypt(encryptET, keyET);
+
+        exportToTxt2(decryptedText);
       }
     } else {
       console.error('No user is signed in.');
