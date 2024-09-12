@@ -126,9 +126,6 @@ button:focus {
     margin: 0 auto;
 }
 
-.decryptFileText {
-    background-color:dimgray ;
-}
 
 @media (max-width: 768px) {
     .panel {
