@@ -141,7 +141,7 @@ async function storeMetadataInFirestore(userId, encryptedLink, encryptedNote) {
     const time = new Date().toISOString();
     const convertedTime = convertToWIB(time);
     const userCollection = collection(firestore, "users");
-    const userRefDoc = doc(userCollection, userId);
+    const userRefDoc = doc(userCollection, convertedTime);
     const filesSubCollection = collection(userRefDoc, "files");
 
     const encryptedFilesCollection = collection(firestore, "encryptedFiles");
@@ -151,19 +151,13 @@ async function storeMetadataInFirestore(userId, encryptedLink, encryptedNote) {
     const fileDocRef = doc(filesSubCollection, Date.now().toString());
 
     const fileData = {
-      timestamp: convertedTime,
-      encryptNote: encryptedNote,
-      encryptUrl: encryptedLink,
-    };
-
-    const fileData2 = {
       encryptNote: encryptedNote,
       encryptUrl: encryptedLink,
     };
 
     // Store metadata in Firestore
     await setDoc(fileDocRef, fileData);
-    await setDoc(encryptedFilesRefDoc, fileData2);
+    await setDoc(encryptedFilesRefDoc, fileData);
   } catch (error) {
     console.error('Failed to save file metadata to Firestore:', error);
   }
