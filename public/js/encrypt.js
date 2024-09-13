@@ -156,9 +156,14 @@ async function storeMetadataInFirestore(userId, encryptedLink, encryptedNote) {
       encryptUrl: encryptedLink,
     };
 
+    const fileData2 = {
+      encryptNote: encryptedNote,
+      encryptUrl: encryptedLink,
+    };
+
     // Store metadata in Firestore
     await setDoc(fileDocRef, fileData);
-    await setDoc(encryptedFilesRefDoc, fileData);
+    await setDoc(encryptedFilesRefDoc, fileData2);
   } catch (error) {
     console.error('Failed to save file metadata to Firestore:', error);
   }
