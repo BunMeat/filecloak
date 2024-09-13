@@ -136,27 +136,25 @@ function convertToWIB(isoString) {
 }
 
 // Helper function to store metadata in Firestore
-async function storeMetadataInFirestore(encryptedLink, encryptedNote) {
+async function storeMetadataInFirestore(userId, encryptedLink, encryptedNote) {
   try {
     const time = new Date().toISOString();
     const convertedTime = convertToWIB(time);
     const userCollection = collection(firestore, "users");
-    const userRefDoc = doc(userCollection, convertedTime);
+    const userRefDoc = doc(userCollection, userId);
     const filesSubCollection = collection(userRefDoc, "files");
+    const filesSubRefDoc = collection(filesSubCollection, convertedTime);
 
     const encryptedFilesCollection = collection(firestore, "encryptedFiles");
     const encryptedFilesRefDoc = doc(encryptedFilesCollection, convertedTime);
-
-    // Create a unique document ID based on the timestamp
-    const fileDocRef = doc(filesSubCollection, Date.now().toString());
-
+    
     const fileData = {
       encryptNote: encryptedNote,
       encryptUrl: encryptedLink,
     };
 
     // Store metadata in Firestore
-    await setDoc(fileDocRef, fileData);
+    await setDoc(filesSubRefDoc, fileData);
     await setDoc(encryptedFilesRefDoc, fileData);
   } catch (error) {
     console.error('Failed to save file metadata to Firestore:', error);
@@ -290,7 +288,7 @@ encryptForm.addEventListener('submit', async (e) => {
       displayEncryptedLink([encryptedLink], fileNames);
 
       // Store metadata in Firestore
-      await storeMetadataInFirestore(encryptedLink, encryptedNote);
+      await storeMetadataInFirestore(user.uid, encryptedLink, encryptedNote);
     } else {
       // Case 2: Encrypt and upload each file individually
       for (const file of files) {
@@ -310,7 +308,7 @@ encryptForm.addEventListener('submit', async (e) => {
         fileNames.push(file.name);
 
         // Store metadata in Firestore
-        await storeMetadataInFirestore(encryptedLink, encryptedNote);
+        await storeMetadataInFirestore(user.uid, encryptedLink, encryptedNote);
       }
 
       // Display all encrypted URLs
