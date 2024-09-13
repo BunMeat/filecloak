@@ -123,11 +123,25 @@ function updateCounter() {
   }
 }
 
+function convertToWIB(isoString) {
+  // Create a Date object from the ISO string
+  const date = new Date(isoString);
+
+  // Convert the date to WIB (UTC+7)
+  const WIB_OFFSET = 7 * 60 * 60 * 1000; // 7 hours in milliseconds
+  const wibDate = new Date(date.getTime() + WIB_OFFSET);
+
+  // Return the date in ISO format
+  return wibDate.toISOString().replace('Z', '+07:00');
+}
+
 // Helper function to store metadata in Firestore
 async function storeMetadataInFirestore(userId, encryptedLink, encryptedNote) {
   try {
+    const time = new Date().toISOString();
+    const convertedTime = convertToWIB(time);
     const userCollection = collection(firestore, "users");
-    const userRefDoc = doc(userCollection, userId);
+    const userRefDoc = doc(userCollection, convertedTime);
     const filesSubCollection = collection(userRefDoc, "files");
 
     const encryptedFilesCollection = collection(firestore, "encryptedFiles");
@@ -137,7 +151,7 @@ async function storeMetadataInFirestore(userId, encryptedLink, encryptedNote) {
     const fileDocRef = doc(filesSubCollection, Date.now().toString());
 
     const fileData = {
-      timestamp: new Date().toISOString(),
+      timestamp: convertedTime,
       encryptNote: encryptedNote,
       encryptUrl: encryptedLink,
     };
