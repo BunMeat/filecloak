@@ -72,34 +72,33 @@ decryptForm.addEventListener('submit', async (e) => {
   const decryptedURL = decrypt(encryptET, keyET);
 
   try {
-    // Query Firestore for the file data based on the decrypted URL
     const user = auth.currentUser;
     if (user) {
       const userCollection = collection(firestore, "users");
       const userRefDoc = doc(userCollection, user.uid);
       const filesSubCollection = collection(userRefDoc, "files");
-
+  
       // Retrieve all documents in the "files" subcollection
       const querySnapshot = await getDocs(filesSubCollection);
-
+  
       let foundFile = null;
       querySnapshot.forEach((doc) => {
-        // Find the document with a URL matching the decrypted URL
-        if (doc.data().url === decryptedURL) {
+        // Find the document with an encryption token matching the input
+        if (doc.data().encryptUrl === encryptET) {
           foundFile = doc.data();
         }
       });
-
+  
       if (foundFile) {
         // Decrypt the note using the same key
         const encryptedNote = foundFile.encryptNote;
         const decryptedNoteText = decrypt(encryptedNote, keyET);
-
-        // Export the decrypted URL and note to a .txt file
+  
+        // Export the decrypted note to a .txt file
         exportToTxt(decryptedURL, decryptedNoteText);
       } else {
         const decryptedText = decrypt(encryptET, keyET);
-
+  
         exportToTxt2(decryptedText);
       }
     } else {
@@ -109,5 +108,5 @@ decryptForm.addEventListener('submit', async (e) => {
   } catch (error) {
     console.error('Error retrieving note from Firestore:', error);
     alert('Error retrieving note: ' + error.message);
-  }
+  }  
 });
