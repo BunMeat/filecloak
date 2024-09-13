@@ -1,10 +1,6 @@
 const encryptForm = document.getElementById('encryptForm');
 
 function encrypt(text, key) {
-  if (key.length !== 32) {
-    throw new Error('Invalid key length. Key must be 32 characters long.');
-  }
-
   const encryptKey = CryptoJS.enc.Utf8.parse(key);
   const encryptIV = CryptoJS.lib.WordArray.random(16);
 
