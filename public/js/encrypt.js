@@ -124,25 +124,27 @@ function updateCounter() {
 }
 
 // Helper function to store metadata in Firestore
-async function storeMetadataInFirestore(userId, downloadURL, encryptedLink, encryptedNote) {
+async function storeMetadataInFirestore(userId, encryptedLink, encryptedNote) {
   try {
     const userCollection = collection(firestore, "users");
     const userRefDoc = doc(userCollection, userId);
     const filesSubCollection = collection(userRefDoc, "files");
-    const fileDocRef = doc(filesSubCollection);
 
     const encryptedFilesCollection = collection(firestore, "encryptedFiles");
-    const encryptedFilesDocRef = doc(encryptedFilesCollection);
+    const encryptedFilesRefDoc = doc(encryptedFilesCollection, userId);
+
+    // Create a unique document ID based on the timestamp
+    const fileDocRef = doc(filesSubCollection, Date.now().toString());
 
     const fileData = {
       timestamp: new Date().toISOString(),
-      url: downloadURL,
       encryptNote: encryptedNote,
       encryptUrl: encryptedLink,
     };
 
+    // Store metadata in Firestore
     await setDoc(fileDocRef, fileData);
-    await setDoc(encryptedFilesDocRef, fileData);
+    await setDoc(encryptedFilesRefDoc, fileData);
     console.log('File data saved to Firestore:', fileData);
   } catch (error) {
     console.error('Failed to save file metadata to Firestore:', error);
@@ -226,7 +228,7 @@ encryptForm.addEventListener('submit', async (e) => {
   const files = fileInput.files;
   const key = document.getElementById('keyGen').value.trim();
   const zipFilesCheckbox = document.getElementById('zipFilesCheckbox').checked;
-  const note = document.getElementById('note').value;  // Get the note input
+  const note = document.getElementById('note').value;
 
   // Check user authentication
   const user = auth.currentUser;
@@ -251,66 +253,61 @@ encryptForm.addEventListener('submit', async (e) => {
       // Case 1: Zip and encrypt multiple files
       const zip = new JSZip();
       for (let file of files) {
-        zip.file(file.name, file); // Add files to the zip
-        fileNames.push(file.name); // Collect file names for export
+        zip.file(file.name, file);
+        fileNames.push(file.name);
       }
 
       // Generate zip content as a Blob
       const zipContent = await zip.generateAsync({ type: 'blob' });
-
-      // Set up for Firebase Storage upload
       fileName = 'files_' + new Date().toISOString().replace(/[:.]/g, '-') + '.zip';
       mimeType = 'application/x-zip-compressed';
       fileToUpload = zipContent;
 
       const storageRef = ref(storage, 'uploads/' + fileName);
 
-      // Step 1: Upload to Firebase Storage
+      // Upload to Firebase Storage
       const snapshot = await uploadBytes(storageRef, fileToUpload);
       console.log('Uploaded zip file to Firebase Storage!', snapshot);
 
-      // Step 2: Get the download URL
+      // Get the download URL
       const downloadURL = await getDownloadURL(snapshot.ref);
       console.log('Download URL for the zip file:', downloadURL);
 
-      // Step 3: Encrypt the download URL
+      // Encrypt the download URL and note
       const encryptedLink = encrypt(downloadURL, key);
       const encryptedNote = encrypt(note, key);
 
-      // Step 4: Display the encrypted URL
-      displayEncryptedLink([encryptedLink], fileNames); // Pass fileNames as array
+      // Display the encrypted URL
+      displayEncryptedLink([encryptedLink], fileNames);
 
-      // Step 5: Store metadata in Firestore
-      await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink, encryptedNote);
+      // Store metadata in Firestore
+      await storeMetadataInFirestore(user.uid, encryptedLink, encryptedNote);
     } else {
       // Case 2: Encrypt and upload each file individually
       for (const file of files) {
-        // Generate a unique file name using the original file name and a timestamp
         const uniqueFileName = `${Date.now()}_${file.name}`;
-
-        // Set up for Firebase Storage upload
         const fileRef = ref(storage, `uploads/${uniqueFileName}`);
 
-        // Step 1: Upload to Firebase Storage
+        // Upload to Firebase Storage
         await uploadBytes(fileRef, file);
         console.log(`Uploaded file ${file.name} as ${uniqueFileName} to Firebase Storage`);
 
-        // Step 2: Get the download URL
+        // Get the download URL
         const downloadURL = await getDownloadURL(fileRef);
         console.log(`Download URL for file ${file.name}:`, downloadURL);
 
-        // Step 3: Encrypt the download URL
+        // Encrypt the download URL and note
         const encryptedLink = encrypt(downloadURL, key);
         const encryptedNote = encrypt(note, key);
         encryptedLinks.push(encryptedLink);
         fileNames.push(file.name);
 
-        // Step 4: Store metadata in Firestore
-        await storeMetadataInFirestore(user.uid, downloadURL, encryptedLink, encryptedNote);
+        // Store metadata in Firestore
+        await storeMetadataInFirestore(user.uid, encryptedLink, encryptedNote);
       }
 
       // Display all encrypted URLs
-      displayEncryptedLink(encryptedLinks, fileNames); // Pass fileNames correctly
+      displayEncryptedLink(encryptedLinks, fileNames);
     }
 
     alert('Files have been processed successfully!');

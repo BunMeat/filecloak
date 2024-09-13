@@ -75,11 +75,10 @@ decryptForm.addEventListener('submit', async (e) => {
   try {
     const user = auth.currentUser;
     if (user) {
-       const encryptedFilesCollection = collection(firestore, "encryptedFiles");
-        const encryptedFilesDocRef = doc(encryptedFilesCollection);
+        const encryptedFilesCollection = collection(firestore, "encryptedFiles");
 
-        // Retrieve all documents in the "files" subcollection
-        const querySnapshot = await getDocs(encryptedFilesDocRef);
+        // Retrieve all documents in the "encryptedFiles" collection
+        const querySnapshot = await getDocs(encryptedFilesCollection);
         console.log("2");
 
         let foundFile = null;
@@ -101,9 +100,9 @@ decryptForm.addEventListener('submit', async (e) => {
             // Export the decrypted note to a .txt file
             exportToTxt(decryptedURL, decryptedNoteText);
         } else {
-            const decryptedText = decrypt(encryptET, keyET);
-            console.log("3");
-            exportToTxt2(decryptedText);
+            // Handle case where the file is not found
+            console.error("File with the provided encryption token not found.");
+            alert("File with the provided encryption token not found.");
         }
     } else {
         console.error('No user is signed in.');
