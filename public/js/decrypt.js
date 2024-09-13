@@ -95,7 +95,7 @@ decryptForm.addEventListener('submit', async (e) => {
             // Export the decrypted note to a .txt file
             exportToTxt(decryptedURL, decryptedNoteText);
         } else {
-          const decryptedNoteText = decrypt(encryptedNote, keyET);
+          const decryptedNoteText = decrypt(encryptET, keyET);
           exportToTxt2(decryptedNoteText);
         }
     } else {
