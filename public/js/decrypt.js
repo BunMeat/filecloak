@@ -86,13 +86,15 @@ decryptForm.addEventListener('submit', async (e) => {
         // Find the document with an encryption token matching the input
         if (doc.data().encryptUrl === encryptET) {
           foundFile = doc.data();
+          console.log("foundFile", foundFile);
         }
       });
-  
+
       if (foundFile) {
         // Decrypt the note using the same key
         const encryptedNote = foundFile.encryptNote;
         const decryptedNoteText = decrypt(encryptedNote, keyET);
+        console.log("decryptedNoteText", decryptedNoteText);
   
         // Export the decrypted note to a .txt file
         exportToTxt(decryptedURL, decryptedNoteText);
