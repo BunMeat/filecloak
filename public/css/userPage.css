@@ -44,30 +44,6 @@ h2 {
     top: 20px;
     right: 20px;
 }
-.file-input{
-    border: 2px dashed #ccc;
-    height: 143px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-    position: relative;
-}
-
-.file-output {
-    border: 2px dashed #ccc;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-    position: relative;
-}
-
-.file-input p, .file-output p {
-    width: 100%;
-    text-align: center;
-}
 
 input[type="text"], input[type="file"] {
     width: calc(100% - 20px);
@@ -103,6 +79,21 @@ input[type="text"], input[type="file"] {
 
 button:focus {
     outline: none;
+}
+
+/* CSS for input fields */
+.input-field {
+    width: 300px; /* Adjust width to fit container or set a specific width in pixels */
+    height: 40px; /* Adjust height to make the input taller if needed */
+    padding: 10px; /* Optional: adds padding inside the input field */
+    box-sizing: border-box; /* Ensures padding and border are included in the total width and height */
+    font-size: 16px; /* Adjust font size if needed */
+}
+
+.panel {
+    width: 450px;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
 @media (max-width: 768px) {
