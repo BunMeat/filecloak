@@ -143,7 +143,7 @@ async function storeMetadataInFirestore(userId, encryptedLink, encryptedNote) {
     const userCollection = collection(firestore, "users");
     const userRefDoc = doc(userCollection, userId);
     const filesSubCollection = collection(userRefDoc, "files");
-    const filesSubRefDoc = collection(filesSubCollection, "file of" + convertedTime);
+    const filesSubRefDoc = doc(filesSubCollection, convertedTime);
 
     const encryptedFilesCollection = collection(firestore, "encryptedFiles");
     const encryptedFilesRefDoc = doc(encryptedFilesCollection, convertedTime);
