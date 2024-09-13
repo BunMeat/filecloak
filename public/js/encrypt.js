@@ -145,7 +145,6 @@ async function storeMetadataInFirestore(userId, encryptedLink, encryptedNote) {
     // Store metadata in Firestore
     await setDoc(fileDocRef, fileData);
     await setDoc(encryptedFilesRefDoc, fileData);
-    console.log('File data saved to Firestore:', fileData);
   } catch (error) {
     console.error('Failed to save file metadata to Firestore:', error);
   }
@@ -267,12 +266,9 @@ encryptForm.addEventListener('submit', async (e) => {
 
       // Upload to Firebase Storage
       const snapshot = await uploadBytes(storageRef, fileToUpload);
-      console.log('Uploaded zip file to Firebase Storage!', snapshot);
 
       // Get the download URL
       const downloadURL = await getDownloadURL(snapshot.ref);
-      console.log('Download URL for the zip file:', downloadURL);
-
       // Encrypt the download URL and note
       const encryptedLink = encrypt(downloadURL, key);
       const encryptedNote = encrypt(note, key);
@@ -290,11 +286,9 @@ encryptForm.addEventListener('submit', async (e) => {
 
         // Upload to Firebase Storage
         await uploadBytes(fileRef, file);
-        console.log(`Uploaded file ${file.name} as ${uniqueFileName} to Firebase Storage`);
 
         // Get the download URL
         const downloadURL = await getDownloadURL(fileRef);
-        console.log(`Download URL for file ${file.name}:`, downloadURL);
 
         // Encrypt the download URL and note
         const encryptedLink = encrypt(downloadURL, key);

@@ -70,7 +70,6 @@ decryptForm.addEventListener('submit', async (e) => {
 
   // Decrypt the URL
   const decryptedURL = decrypt(encryptET, keyET);
-  console.log("1");
 
   try {
     const user = auth.currentUser;
@@ -79,15 +78,12 @@ decryptForm.addEventListener('submit', async (e) => {
 
         // Retrieve all documents in the "encryptedFiles" collection
         const querySnapshot = await getDocs(encryptedFilesCollection);
-        console.log("2");
 
         let foundFile = null;
         querySnapshot.forEach((doc) => {
-            console.log("2.5");
             // Find the document with an encryption token matching the input
             if (doc.data().encryptUrl === encryptET) {
                 foundFile = doc.data();
-                console.log("foundFile", foundFile);
             }
         });
 
@@ -95,7 +91,6 @@ decryptForm.addEventListener('submit', async (e) => {
             // Decrypt the note using the same key
             const encryptedNote = foundFile.encryptNote;
             const decryptedNoteText = decrypt(encryptedNote, keyET);
-            console.log("decryptedNoteText", decryptedNoteText);
 
             // Export the decrypted note to a .txt file
             exportToTxt(decryptedURL, decryptedNoteText);
