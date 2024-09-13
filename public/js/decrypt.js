@@ -73,39 +73,44 @@ decryptForm.addEventListener('submit', async (e) => {
   console.log("1");
 
   try {
-    // Reference to Firestore (no need to check for signed-in user)
-    const userCollection = collection(firestore, "users");
-    const filesSubCollection = collection(userCollection, "files");
+    const user = auth.currentUser;
+    if (user) {
+       const encryptedFilesCollection = collection(firestore, "encryptedFiles");
+        const encryptedFilesDocRef = doc(encryptedFilesCollection);
 
-    // Retrieve all documents in the "files" subcollection
-    const querySnapshot = await getDocs(filesSubCollection);
-    console.log("2");
+        // Retrieve all documents in the "files" subcollection
+        const querySnapshot = await getDocs(encryptedFilesDocRef);
+        console.log("2");
 
-    let foundFile = null;
-    querySnapshot.forEach((doc) => {
-        console.log("2.5");
-        // Find the document with an encryption token matching the input
-        if (doc.data().encryptUrl === encryptET) {
-            foundFile = doc.data();
-            console.log("foundFile", foundFile);
+        let foundFile = null;
+        querySnapshot.forEach((doc) => {
+            console.log("2.5");
+            // Find the document with an encryption token matching the input
+            if (doc.data().encryptUrl === encryptET) {
+                foundFile = doc.data();
+                console.log("foundFile", foundFile);
+            }
+        });
+
+        if (foundFile) {
+            // Decrypt the note using the same key
+            const encryptedNote = foundFile.encryptNote;
+            const decryptedNoteText = decrypt(encryptedNote, keyET);
+            console.log("decryptedNoteText", decryptedNoteText);
+
+            // Export the decrypted note to a .txt file
+            exportToTxt(decryptedURL, decryptedNoteText);
+        } else {
+            const decryptedText = decrypt(encryptET, keyET);
+            console.log("3");
+            exportToTxt2(decryptedText);
         }
-    });
-
-    if (foundFile) {
-        // Decrypt the note using the provided key
-        const encryptedNote = foundFile.encryptNote;
-        const decryptedNoteText = decrypt(encryptedNote, keyET);
-        console.log("decryptedNoteText", decryptedNoteText);
-
-        // Export the decrypted note to a .txt file
-        exportToTxt(decryptedURL, decryptedNoteText);
     } else {
-        const decryptedText = decrypt(encryptET, keyET);
-        console.log("3");
-        exportToTxt2(decryptedText);
+        console.error('No user is signed in.');
+        alert('You need to sign in to decrypt the note.');
     }
-  } catch (error) {
-      console.error('Error retrieving note from Firestore:', error);
-      alert('Error retrieving note: ' + error.message);
-  }
+} catch (error) {
+    console.error('Error retrieving note from Firestore:', error);
+    alert('Error retrieving note: ' + error.message);
+}
 });

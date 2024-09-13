@@ -131,6 +131,9 @@ async function storeMetadataInFirestore(userId, downloadURL, encryptedLink, encr
     const filesSubCollection = collection(userRefDoc, "files");
     const fileDocRef = doc(filesSubCollection);
 
+    const encryptedFilesCollection = collection(firestore, "encryptedFiles");
+    const encryptedFilesDocRef = doc(encryptedFilesCollection);
+
     const fileData = {
       timestamp: new Date().toISOString(),
       url: downloadURL,
@@ -139,6 +142,7 @@ async function storeMetadataInFirestore(userId, downloadURL, encryptedLink, encr
     };
 
     await setDoc(fileDocRef, fileData);
+    await setDoc(encryptedFilesDocRef, fileData);
     console.log('File data saved to Firestore:', fileData);
   } catch (error) {
     console.error('Failed to save file metadata to Firestore:', error);
