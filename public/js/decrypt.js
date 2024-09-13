@@ -95,9 +95,8 @@ decryptForm.addEventListener('submit', async (e) => {
             // Export the decrypted note to a .txt file
             exportToTxt(decryptedURL, decryptedNoteText);
         } else {
-            // Handle case where the file is not found
-            console.error("File with the provided encryption token not found.");
-            alert("File with the provided encryption token not found.");
+          const decryptedNoteText = decrypt(encryptedNote, keyET);
+          exportToTxt2(decryptedNoteText);
         }
     } else {
         console.error('No user is signed in.');
