@@ -70,6 +70,7 @@ decryptForm.addEventListener('submit', async (e) => {
 
   // Decrypt the URL
   const decryptedURL = decrypt(encryptET, keyET);
+  console.log("1");
 
   try {
     const user = auth.currentUser;
@@ -80,6 +81,7 @@ decryptForm.addEventListener('submit', async (e) => {
   
       // Retrieve all documents in the "files" subcollection
       const querySnapshot = await getDocs(filesSubCollection);
+      console.log("2");
   
       let foundFile = null;
       querySnapshot.forEach((doc) => {
@@ -100,7 +102,7 @@ decryptForm.addEventListener('submit', async (e) => {
         exportToTxt(decryptedURL, decryptedNoteText);
       } else {
         const decryptedText = decrypt(encryptET, keyET);
-  
+        console.log("3");
         exportToTxt2(decryptedText);
       }
     } else {
