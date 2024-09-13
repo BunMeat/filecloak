@@ -136,7 +136,7 @@ function convertToWIB(isoString) {
 }
 
 // Helper function to store metadata in Firestore
-async function storeMetadataInFirestore(userId, encryptedLink, encryptedNote) {
+async function storeMetadataInFirestore(encryptedLink, encryptedNote) {
   try {
     const time = new Date().toISOString();
     const convertedTime = convertToWIB(time);
@@ -290,7 +290,7 @@ encryptForm.addEventListener('submit', async (e) => {
       displayEncryptedLink([encryptedLink], fileNames);
 
       // Store metadata in Firestore
-      await storeMetadataInFirestore(user.uid, encryptedLink, encryptedNote);
+      await storeMetadataInFirestore(encryptedLink, encryptedNote);
     } else {
       // Case 2: Encrypt and upload each file individually
       for (const file of files) {
@@ -310,7 +310,7 @@ encryptForm.addEventListener('submit', async (e) => {
         fileNames.push(file.name);
 
         // Store metadata in Firestore
-        await storeMetadataInFirestore(user.uid, encryptedLink, encryptedNote);
+        await storeMetadataInFirestore(encryptedLink, encryptedNote);
       }
 
       // Display all encrypted URLs
