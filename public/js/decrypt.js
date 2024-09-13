@@ -85,6 +85,7 @@ decryptForm.addEventListener('submit', async (e) => {
   
       let foundFile = null;
       querySnapshot.forEach((doc) => {
+        console.log("2.5");
         // Find the document with an encryption token matching the input
         if (doc.data().encryptUrl === encryptET) {
           foundFile = doc.data();
