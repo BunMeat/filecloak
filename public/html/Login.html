@@ -9,7 +9,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
         import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
+        import { getFirestore, doc, getDoc, setDoc, serverTimestamp, Timestamp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
         // Firebase configuration
         const firebaseConfig = {
@@ -77,11 +77,14 @@
                     const lockDuration = calculateLockDuration(failedAttempts);
                     newLockUntil = new Date(currentTime.getTime() + lockDuration);
                     alert(`Too many failed attempts. Account is locked until ${newLockUntil}.`);
+                } else {
+                    alert(`Login failed. Attempt ${failedAttempts} of ${MAX_LOGIN_ATTEMPTS}.`);
                 }
+
                 // Update Firestore with failed attempts and lock time
                 await setDoc(userDocRef, {
                     failedAttempts: failedAttempts,
-                    lockUntil: newLockUntil ? serverTimestamp() : null
+                    lockUntil: newLockUntil ? Timestamp.fromDate(newLockUntil) : null
                 }, { merge: true });
             }
         }
