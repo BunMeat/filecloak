@@ -9,7 +9,9 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
         import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: window.env.FIREBASEKEY,
             authDomain: window.env.FIREBASEAUTHDOMAIN,
@@ -21,44 +23,70 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const firestore = getFirestore(app);
 
-        // Maximum allowed login attempts
         const MAX_LOGIN_ATTEMPTS = 3;
+        const INITIAL_LOCK_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
+        const LOCK_MULTIPLIER = 2; // Multiply lock time by 2 for each subsequent failure
 
-        document.querySelector('.login-form').addEventListener('submit', async function(e) {
+        // Function to calculate lock duration based on failed attempts
+        function calculateLockDuration(failedAttempts) {
+            return INITIAL_LOCK_DURATION * Math.pow(LOCK_MULTIPLIER, failedAttempts - MAX_LOGIN_ATTEMPTS);
+        }
+
+        async function handleLogin(e) {
             e.preventDefault();
 
             const email = document.getElementById('emailLogin').value;
             const password = document.getElementById('passwordLogin').value;
 
-            let failedAttempts = parseInt(localStorage.getItem('failedAttempts')) || 0;
+            const userDocRef = doc(firestore, 'users', email);
+            const userDoc = await getDoc(userDocRef);
+            let failedAttempts = 0;
+            let lockUntil = null;
 
-            if (failedAttempts >= MAX_LOGIN_ATTEMPTS) {
-                alert('Too many login attempts. Please try again later.');
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                failedAttempts = data.failedAttempts || 0;
+                lockUntil = data.lockUntil ? data.lockUntil.toDate() : null;
+            }
+
+            const currentTime = new Date();
+
+            // Check if the account is still locked
+            if (lockUntil && lockUntil > currentTime) {
+                alert(`Your account is locked until ${lockUntil}. Please try again later.`);
                 return;
             }
 
             try {
+                // Attempt to log in the user
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 console.log('Logged in:', userCredential.user);
 
-                // Reset failed attempts after successful login
-                localStorage.removeItem('failedAttempts');
+                // Reset failed attempts on successful login
+                await setDoc(userDocRef, { failedAttempts: 0, lockUntil: null }, { merge: true });
                 alert('Login successful!');
-
-                // Redirect user to another page
-                window.location.href = 'dashboard.html';
+                window.location.href = 'dashboard.html'; // Redirect after successful login
             } catch (error) {
                 failedAttempts++;
-                localStorage.setItem('failedAttempts', failedAttempts);
+                let newLockUntil = null;
 
                 if (failedAttempts >= MAX_LOGIN_ATTEMPTS) {
-                    alert('Too many login attempts. Please try again later.');
-                } else {
-                    alert(`Login failed. Attempt ${failedAttempts} of ${MAX_LOGIN_ATTEMPTS}.`);
+                    // Calculate the lock duration and block the account
+                    const lockDuration = calculateLockDuration(failedAttempts);
+                    newLockUntil = new Date(currentTime.getTime() + lockDuration);
+                    alert(`Too many failed attempts. Account is locked until ${newLockUntil}.`);
                 }
+                // Update Firestore with failed attempts and lock time
+                await setDoc(userDocRef, {
+                    failedAttempts: failedAttempts,
+                    lockUntil: newLockUntil ? serverTimestamp() : null
+                }, { merge: true });
             }
-        });
+        }
+
+        document.querySelector('.login-form').addEventListener('submit', handleLogin);
     </script>
 </head>
 <body>
