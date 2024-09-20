@@ -1,6 +1,6 @@
 import { initializeApp as initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
 import { getAuth as getAuth, signInWithEmailAndPassword as signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
-import { getFirestore as getFirestore, doc as doc, getDoc as getDoc, updateDoc as updateDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
+import { getFirestore as getFirestore, doc as doc, getDoc as getDoc, updateDoc as updateDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
@@ -24,29 +24,29 @@ loginForm.addEventListener('submit', async (e) => {
   const password = document.getElementById('passwordLogin').value;
 
   try {
+    console.log("1");
     // Try to sign in
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;  // Get the signed-in user
-    const userQuery = doc(firestore, 'users', user.uid); // Using uid as document ID
+    const userDocRef = doc(firestore, 'users', user.uid); // Using uid as document ID
 
-    console.log("1");
-
-    const userDoc = await getDoc(userQuery);
+    const userDoc = await getDoc(userDocRef);
 
     if (userDoc.exists()) {
+      console.log("2");
       const userData = userDoc.data();
       const currentTime = new Date();
 
       // Check if the account is locked
       if (userData.lockUntil && userData.lockUntil.toDate() > currentTime) {
+        console.log("3");
         const remainingTime = Math.ceil((userData.lockUntil.toDate() - currentTime) / 1000 / 60); // Calculate remaining lock time in minutes
         alert(`Akun diblokir, silahkan coba dalam ${remainingTime} menit.`);
-        console.log("2");
         return;
       }
 
       // If successful, reset failed attempts and lockUntil
-      await updateDoc(userQuery, { failedAttempts: 0, lockUntil: null });
+      await updateDoc(userDocRef, { failedAttempts: 0, lockUntil: null });
 
       // Redirect the user based on their role
       if (userData.role === "user") {
@@ -56,28 +56,28 @@ loginForm.addEventListener('submit', async (e) => {
       }
 
     } else {
+      console.log("4");
       alert("Email / Password Salah");
     }
 
   } catch (error) {
     const errorCode = error.code;
 
-    console.log("3");
-
-    if (errorCode === 'auth/too-many-requests'){
-      console.log("7");
+    if (errorCode === 'auth/too-many-requests') {
+      console.log("5");
       alert("Akun terblokir. Silahkan mencoba beberapa menit lagi.");
     }
 
     if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found' || errorCode === 'auth/invalid-credential') {
+      console.log("6");
       // Fetch the Firestore document based on email to get the user UID
-      console.log("3");
-      const usersCollection = firestore.collection('users');
-      const userQuerySnapshot = await usersCollection.where('email', '==', email).get();
+      const usersCollection = collection(firestore, 'users');
+      const userQuery = query(usersCollection, where('email', '==', email));
+      const userQuerySnapshot = await getDocs(userQuery);
     
       // If the document exists, get the user UID and use it to query Firestore
       if (!userQuerySnapshot.empty) {
-        console.log("4");
+        console.log("7");
         const userDoc = userQuerySnapshot.docs[0]; // Assuming email is unique
         const userData = userDoc.data();
         const userUid = userDoc.id;  // Get the document ID, which should be the UID
@@ -86,7 +86,7 @@ loginForm.addEventListener('submit', async (e) => {
     
         // Check if the user has reached the limit of 3 failed attempts
         if (failedAttempts >= 2) {
-          console.log("5");
+          console.log("8");
           // Lock the account for 15 minutes
           newLockUntil = new Date();
           newLockUntil.setMinutes(newLockUntil.getMinutes() + 15);
@@ -98,12 +98,11 @@ loginForm.addEventListener('submit', async (e) => {
           failedAttempts: failedAttempts + 1,
           lockUntil: newLockUntil ? newLockUntil : null
         });
-    } else {
+      } else {
+        console.log("9");
         // If the user does not exist, simply show an error
-        console.log("6");
         alert('Pengguna tidak ada.');
       }
-
     }
   }
 });
