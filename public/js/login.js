@@ -1,7 +1,8 @@
 import { initializeApp as initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
 import { getAuth as getAuth, signInWithEmailAndPassword as signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
-import { getFirestore as getFirestore, doc as doc, getDoc as getDoc, updateDoc as updateDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
+import { getFirestore as getFirestore, doc as doc, getDoc as getDoc, updateDoc as updateDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
+// Firebase config
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
   authDomain: window.env.FIREBASEAUTHDOMAIN,
@@ -24,85 +25,86 @@ loginForm.addEventListener('submit', async (e) => {
   const password = document.getElementById('passwordLogin').value;
 
   try {
-    console.log("1");
-    // Try to sign in
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;  // Get the signed-in user
-    const userDocRef = doc(firestore, 'users', user.uid); // Using uid as document ID
+    const user = userCredential.user;
 
-    const userDoc = await getDoc(userDocRef);
-
+    // Get user's Firestore document
+    const userDoc = await getDoc(doc(firestore, 'users', user.uid));
     if (userDoc.exists()) {
-      console.log("2");
       const userData = userDoc.data();
-      const currentTime = new Date();
 
-      // Check if the account is locked
-      if (userData.lockUntil && userData.lockUntil.toDate() > currentTime) {
-        console.log("3");
-        const remainingTime = Math.ceil((userData.lockUntil.toDate() - currentTime) / 1000 / 60); // Calculate remaining lock time in minutes
-        alert(`Akun diblokir, silahkan coba dalam ${remainingTime} menit.`);
+      // Check if account is locked
+      if (userData.accountLocked) {
+        alert("Your account has been locked due to too many failed login attempts.");
         return;
       }
 
-      // If successful, reset failed attempts and lockUntil
-      await updateDoc(userDocRef, { failedAttempts: 0, lockUntil: null });
+      // Successful login
+      alert("Sukses Login");
 
-      // Redirect the user based on their role
+      // Reset failed attempts after successful login
+      await updateDoc(doc(firestore, 'users', user.uid), { failedAttempts: 0 });
+
+      // Redirect based on role
       if (userData.role === "user") {
         window.location.href = "../html/userPage.html";
       } else {
         window.location.href = "../html/adminPageEncrypt.html";
       }
-
     } else {
-      console.log("4");
       alert("Email / Password Salah");
     }
-
   } catch (error) {
     const errorCode = error.code;
+    const errorMsg = error.message;
 
-    if (errorCode === 'auth/too-many-requests') {
-      console.log("5");
-      alert("Akun terblokir. Silahkan mencoba beberapa menit lagi.");
+    if (errorCode == "auth/too-many-requests") {
+      alert(errorMsg);
     }
 
-    if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found' || errorCode === 'auth/invalid-credential') {
-      console.log("6");
-      // Fetch the Firestore document based on email to get the user UID
-      const usersCollection = collection(firestore, 'users');
-      const userQuery = query(usersCollection, where('email', '==', email));
-      const userQuerySnapshot = await getDocs(userQuery);
-    
-      // If the document exists, get the user UID and use it to query Firestore
-      if (!userQuerySnapshot.empty) {
-        console.log("7");
-        const userDoc = userQuerySnapshot.docs[0]; // Assuming email is unique
-        const userData = userDoc.data();
-        const userUid = userDoc.id;  // Get the document ID, which should be the UID
-        const failedAttempts = userData.failedAttempts || 0;
-        let newLockUntil = null;
-    
-        // Check if the user has reached the limit of 3 failed attempts
+    console.error('Login error: ', errorMsg);
+
+    // Handle invalid credentials and increment failed attempts
+    if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found') {
+      // Get the user document by email to track failed attempts
+      const userDocRef = doc(firestore, 'users', email); // Adjust if email is mapped to the user document
+
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        const failedAttempts = userDoc.data().failedAttempts || 0;
+
+        // Lock account after 3 failed attempts
         if (failedAttempts >= 2) {
-          console.log("8");
-          // Lock the account for 15 minutes
-          newLockUntil = new Date();
-          newLockUntil.setMinutes(newLockUntil.getMinutes() + 15);
-          alert(`Akun diblokir selama 15 menit karena terlalu banyak permintaan login.`);
+          await updateDoc(userDocRef, { accountLocked: true });
+          
+          // Call backend to disable the account
+          disableUserAccount(email);
+          
+          alert("Account has been locked after 3 failed attempts.");
+        } else {
+          // Increment failed attempts
+          await updateDoc(userDocRef, { failedAttempts: failedAttempts + 1 });
+          alert("Wrong email or password. Failed attempts: " + (failedAttempts + 1));
         }
-    
-        // Update the failedAttempts count and lockUntil timestamp in Firestore
-        await updateDoc(doc(firestore, 'users', userUid), {
-          failedAttempts: failedAttempts + 1,
-          lockUntil: newLockUntil ? newLockUntil : null
-        });
       } else {
-        console.log("9");
-        // If the user does not exist, simply show an error
-        alert('Pengguna tidak ada.');
+        alert("Pengguna tidak ada.");
       }
     }
   }
 });
+
+// Function to call backend API for disabling the user account
+async function disableUserAccount(email) {
+  try {
+    await fetch('/disableUser', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email: email })
+    });
+    console.log('User account disabled.');
+  } catch (error) {
+    console.error('Error disabling user account: ', error);
+  }
+}
