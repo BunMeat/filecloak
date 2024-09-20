@@ -64,13 +64,20 @@ loginForm.addEventListener('submit', async (e) => {
 
     console.log("3");
 
+    if (errorCode === 'auth/too-many-requests'){
+      console.log("7");
+      alert("Akun terblokir. Silahkan mencoba beberapa menit lagi.");
+    }
+
     if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found' || errorCode === 'auth/invalid-credential') {
       // Fetch the Firestore document based on email to get the user UID
+      console.log("3");
       const usersCollection = firestore.collection('users');
       const userQuerySnapshot = await usersCollection.where('email', '==', email).get();
     
       // If the document exists, get the user UID and use it to query Firestore
       if (!userQuerySnapshot.empty) {
+        console.log("4");
         const userDoc = userQuerySnapshot.docs[0]; // Assuming email is unique
         const userData = userDoc.data();
         const userUid = userDoc.id;  // Get the document ID, which should be the UID
@@ -79,6 +86,7 @@ loginForm.addEventListener('submit', async (e) => {
     
         // Check if the user has reached the limit of 3 failed attempts
         if (failedAttempts >= 2) {
+          console.log("5");
           // Lock the account for 15 minutes
           newLockUntil = new Date();
           newLockUntil.setMinutes(newLockUntil.getMinutes() + 15);
@@ -96,10 +104,6 @@ loginForm.addEventListener('submit', async (e) => {
         alert('Pengguna tidak ada.');
       }
 
-    }
-
-    if (errorCode === 'auth/too-many-requests'){
-      alert("Akun terblokir. Silahkan mencoba beberapa menit lagi.");
     }
   }
 });
