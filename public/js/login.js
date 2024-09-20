@@ -24,9 +24,11 @@ loginForm.addEventListener('submit', async (e) => {
   const password = document.getElementById('passwordLogin').value;
 
   try {
-    // Get the user's Firestore document
+    // Get the user's Firestore document by email
     const userQuery = doc(firestore, 'users', email); // Assuming email is the document ID in Firestore
     const userDoc = await getDoc(userQuery);
+
+    console.log("1");
 
     if (userDoc.exists()) {
       const userData = userDoc.data();
@@ -35,18 +37,19 @@ loginForm.addEventListener('submit', async (e) => {
       // Check if the account is locked
       if (userData.lockUntil && userData.lockUntil.toDate() > currentTime) {
         const remainingTime = Math.ceil((userData.lockUntil.toDate() - currentTime) / 1000 / 60); // Calculate remaining lock time in minutes
-        alert(`Your account is locked. Please try again after ${remainingTime} minutes.`);
+        alert(`Akun diblokir, silahkan coba dalam ${remainingTime} menit.`);
+        console.log("2");
         return;
       }
 
       // Try to sign in
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, email, password);
+      console.log("3");
 
-      // Reset failed attempts on successful login
+      // If successful, reset failed attempts and lockUntil
       await updateDoc(userQuery, { failedAttempts: 0, lockUntil: null });
 
-      // Redirect user based on their role
-      alert("Sukses Login");
+      // Redirect the user based on their role
       if (userData.role === "user") {
         window.location.href = "../html/userPage.html";
       } else {
@@ -59,6 +62,8 @@ loginForm.addEventListener('submit', async (e) => {
   } catch (error) {
     const errorCode = error.code;
 
+    console.log("4");
+
     if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found') {
       // Handle failed login attempts
       const userQuery = doc(firestore, 'users', email);
@@ -69,12 +74,15 @@ loginForm.addEventListener('submit', async (e) => {
         const failedAttempts = userData.failedAttempts || 0;
         let newLockUntil = null;
 
+        console.log("5");
+
         // Check if the user has reached the limit of 3 failed attempts
-        if (failedAttempts >= 2) {
+        if (failedAttempts > 2) {
           // Lock the account for 15 minutes
           newLockUntil = new Date();
           newLockUntil.setMinutes(newLockUntil.getMinutes() + 15);
-          alert(`Too many failed login attempts. Your account is locked for 15 minutes.`);
+          alert(`Akun diblokir selama 15 menit karena terlalu banyak permintaan login.`);
+          console.log("6");
         }
 
         // Update the failedAttempts count and lockUntil timestamp in Firestore
@@ -84,11 +92,11 @@ loginForm.addEventListener('submit', async (e) => {
         });
       } else {
         // If the user does not exist, simply show an error
-        alert('Email / Password is incorrect');
+        alert('Pengguna tidak ada.');
       }
     } else {
       console.error('Login error: ', error.message);
-      alert('An error occurred during login');
+      alert('Error saat login.');
     }
   }
 });
