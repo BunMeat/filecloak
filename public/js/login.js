@@ -64,7 +64,7 @@ loginForm.addEventListener('submit', async (e) => {
 
     console.log("3");
 
-    if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found') {
+    if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found' || errorCode === 'auth/invalid-credential') {
       // Fetch the Firestore document based on email to get the user UID
       const usersCollection = firestore.collection('users');
       const userQuerySnapshot = await usersCollection.where('email', '==', email).get();
@@ -90,20 +90,16 @@ loginForm.addEventListener('submit', async (e) => {
           failedAttempts: failedAttempts + 1,
           lockUntil: newLockUntil ? newLockUntil : null
         });
-    }
-     else {
+    } else {
         // If the user does not exist, simply show an error
         console.log("6");
         alert('Pengguna tidak ada.');
       }
 
-      if (errorCode === 'auth/too-many-requests'){
-        alert("Akun terblokir. Silahkan mencoba beberapa menit lagi.");
-      }
-    } else {
-      console.error('Login error: ', error.message);
-      console.log("7");
-      alert('Error saat login.');
+    }
+
+    if (errorCode === 'auth/too-many-requests'){
+      alert("Akun terblokir. Silahkan mencoba beberapa menit lagi.");
     }
   }
 });
