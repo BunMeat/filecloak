@@ -70,7 +70,10 @@ loginForm.addEventListener('submit', async (e) => {
 
     if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found') {
       // Handle failed login attempts
-      const userQuery = doc(firestore, 'users', email);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;  // Get the signed-in user
+      const userQuery = doc(firestore, 'users', user.uid); // Using uid as document ID
+
       const userDoc = await getDoc(userQuery);
 
       if (userDoc.exists()) {
