@@ -25,7 +25,11 @@ loginForm.addEventListener('submit', async (e) => {
 
   try {
     // Get the user's Firestore document by email
-    const userQuery = doc(firestore, 'users', email); // Assuming email is the document ID in Firestore
+    // Try to sign in
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;  // Get the signed-in user
+    const userQuery = doc(firestore, 'users', user.uid); // Using uid as document ID
+
     const userDoc = await getDoc(userQuery);
 
     console.log("1");
