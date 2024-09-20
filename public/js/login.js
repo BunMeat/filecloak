@@ -2,9 +2,6 @@ import { initializeApp as initializeApp } from 'https://www.gstatic.com/firebase
 import { getAuth as getAuth, signInWithEmailAndPassword as signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
 import { getFirestore as getFirestore, doc as doc, getDoc as getDoc, updateDoc as updateDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
-// Firebase Admin SDK should be initialized on your backend (index.mjs or another file)
-import admin from 'firebase-admin';
-
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
   authDomain: window.env.FIREBASEAUTHDOMAIN,
@@ -66,9 +63,19 @@ loginForm.addEventListener('submit', async (e) => {
       const failedAttempts = userData.failedAttempts || 0;
 
       if (failedAttempts >= 2) {
-        // Disable the user after 3 failed attempts
-        await admin.auth().updateUser(user.uid, { disabled: true });
-        alert(`User has been disabled after ${failedAttempts + 1} failed attempts.`);
+        const response = await fetch('/disableUser', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: email }), // or user.uid if you prefer
+        });
+  
+        if (response.ok) {
+          alert(`User has been disabled after ${failedAttempts + 1} failed attempts.`);
+        } else {
+          alert('Failed to disable user.');
+        }
       }
 
       // Update failed attempts count in Firestore
