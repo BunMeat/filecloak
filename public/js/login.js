@@ -65,34 +65,40 @@ loginForm.addEventListener('submit', async (e) => {
     console.log("3");
 
     if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found') {
-      // Check the user's Firestore document based on email (get the user's UID)
-      const userQuery = doc(firestore, 'users', email); // If you have a way to map email to uid
-      const userDoc = await getDoc(userQuery);
-
-      if (userDoc.exists()) {
-        console.log("4");
+      // Fetch the Firestore document based on email to get the user UID
+      const usersCollection = firestore.collection('users');
+      const userQuerySnapshot = await usersCollection.where('email', '==', email).get();
+    
+      // If the document exists, get the user UID and use it to query Firestore
+      if (!userQuerySnapshot.empty) {
+        const userDoc = userQuerySnapshot.docs[0]; // Assuming email is unique
         const userData = userDoc.data();
+        const userUid = userDoc.id;  // Get the document ID, which should be the UID
         const failedAttempts = userData.failedAttempts || 0;
         let newLockUntil = null;
-
+    
         // Check if the user has reached the limit of 3 failed attempts
         if (failedAttempts >= 2) {
           // Lock the account for 15 minutes
-          console.log("5");
           newLockUntil = new Date();
           newLockUntil.setMinutes(newLockUntil.getMinutes() + 15);
           alert(`Akun diblokir selama 15 menit karena terlalu banyak permintaan login.`);
         }
-
+    
         // Update the failedAttempts count and lockUntil timestamp in Firestore
-        await updateDoc(userQuery, {
+        await updateDoc(doc(firestore, 'users', userUid), {
           failedAttempts: failedAttempts + 1,
           lockUntil: newLockUntil ? newLockUntil : null
         });
-      } else {
+    }
+     else {
         // If the user does not exist, simply show an error
         console.log("6");
         alert('Pengguna tidak ada.');
+      }
+
+      if (errorCode === 'auth/too-many-requests'){
+        alert("Akun terblokir. Silahkan mencoba beberapa menit lagi.");
       }
     } else {
       console.error('Login error: ', error.message);
