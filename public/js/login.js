@@ -54,11 +54,10 @@ loginForm.addEventListener('submit', async (e) => {
       alert(errorMsg);
     }
 
-    // Fetch user doc based on email and increment failed attempts
-    const userQuery = doc(firestore, 'users', user.uid);
-    const userDoc = await getDoc(userQuery);
-
-    if (userDoc.exists()) {
+    // Query the user document using email to find the UID for failed attempts
+    const userQuerySnapshot = await getDocs(query(collection(firestore, 'users'), where('email', '==', email)));
+    if (!userQuerySnapshot.empty) {
+      const userDoc = userQuerySnapshot.docs[0]; // Get the first matching document
       const userData = userDoc.data();
       const failedAttempts = userData.failedAttempts || 0;
 
@@ -68,7 +67,7 @@ loginForm.addEventListener('submit', async (e) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email: email }), // or user.uid if you prefer
+          body: JSON.stringify({ email: email }), // Send email to disable user
         });
   
         if (response.ok) {
@@ -79,7 +78,7 @@ loginForm.addEventListener('submit', async (e) => {
       }
 
       // Update failed attempts count in Firestore
-      await updateDoc(userQuery, {
+      await updateDoc(doc(firestore, 'users', userDoc.id), { // Use the doc id to update
         failedAttempts: failedAttempts + 1
       });
     }
