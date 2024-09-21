@@ -51,11 +51,11 @@ loginForm.addEventListener('submit', async (e) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email })
         });
-        console.log("4");
+
         const result = await response.json();
         alert(result.message || 'Failed login attempt recorded.');
       } catch (err) {
-        console.log("5");
+        console.log("4");
         console.error('Error sending failed login attempt to the backend:', err);
       }
     }
