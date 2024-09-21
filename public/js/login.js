@@ -26,13 +26,25 @@ loginForm.addEventListener('submit', async (e) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+    //check if user is blocked
+    if (user.isBlocked === "blocked"){
+      console.log("1");
+      return error;
+    }
     if (userDoc.exists()) {
       const userData = userDoc.data();
-      alert("Sukses Login");
-      if (userData.role === "user") {
-        window.location.href = "../html/userPage.html";
+      if (user.isBlocked === "blocked"){
+        console.log("1");
+        return error;
       } else {
-        window.location.href = "../html/adminPageEncrypt.html";
+        console.log("2");
+        if (userData.role === "user") {
+          alert("Sukses Login");
+          window.location.href = "../html/userPage.html";
+        } else {
+          alert("Sukses Login");
+          window.location.href = "../html/adminPageEncrypt.html";
+        }
       }
     } else {
       alert("Email / Password Salah");
@@ -41,8 +53,14 @@ loginForm.addEventListener('submit', async (e) => {
     const errorCode = error.code;
     const errorMsg = error.message;
     console.error('Login error: ', errorMsg);
-    if (errorCode === 'auth/invalid-credential') {
-      alert("Email / Password Salah");
+    if (errorCode === 'auth/invalid-credential' || errorCode === 'auth/wrong-password') {
+      console.log("3");
+    const userCollection = collection(firestore, "users");
+    const userRefDoc = doc(userCollection, userId);
+    const fileData = {
+      isBlocked: "blocked"
+    };
+    await setDoc(userRefDoc, fileData);
     } else {
       console.log("errorMsg", errorMsg);
       console.log("errorCode", errorCode);
