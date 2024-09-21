@@ -20,8 +20,8 @@ const loginForm = document.getElementById('loginForm');
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const email  = document.getElementById('emailLogin').value;
-  const password  = document.getElementById('passwordLogin').value;
+  const email = document.getElementById('emailLogin').value;
+  const password = document.getElementById('passwordLogin').value;
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -40,13 +40,28 @@ loginForm.addEventListener('submit', async (e) => {
   } catch (error) {
     const errorCode = error.code;
     const errorMsg = error.message;
-    console.error('Login error: ', errorMsg);
-    if (errorCode === 'auth/invalid-credential') {
-      alert("Email / Password Salah");
-    } else {
-      console.log("errorMsg", errorMsg);
-      console.log("errorCode", errorCode);
-      alert("Kesalahan Server", errorMsg);
+
+    // If login fails, send failed attempt to the backend
+    if (errorCode === 'auth/wrong-password' || errorCode === 'auth/invalid-credential') {
+      try {
+        const response = await fetch('/loginFailed', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: email }),
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+          alert(result.message || 'Failed login attempt recorded.');
+        } else {
+          alert(result.error || 'Error in failed login attempt.');
+        }
+      } catch (err) {
+        console.error('Error sending failed login attempt to the backend:', err);
+      }
     }
+    alert("Login failed: " + errorMsg);
   }
 });
