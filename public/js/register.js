@@ -35,7 +35,7 @@ registrationForm.addEventListener('submit', async (e) => {
 
       const userCollection = collection(firestore, "users");
       const userId = user.uid;
-      const userRefDoc = doc(userCollection, userId);
+      const userRefDoc = doc(userCollection, email);
       const userData = {
         uid: user.uid,
         role: "user",
