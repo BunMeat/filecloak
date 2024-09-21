@@ -1,6 +1,6 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
-import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
+import { initializeApp as initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
+import { getAuth as getAuth, signInWithEmailAndPassword as signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
+import { getFirestore as getFirestore, doc as doc, getDoc as getDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
@@ -26,7 +26,6 @@ loginForm.addEventListener('submit', async (e) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-
     if (userDoc.exists()) {
       const userData = userDoc.data();
       alert("Sukses Login");
@@ -41,25 +40,32 @@ loginForm.addEventListener('submit', async (e) => {
   } catch (error) {
     const errorCode = error.code;
     const errorMsg = error.message;
-    console.log("1");
+
+    // If login fails, send failed attempt to the backend
     if (errorCode === 'auth/wrong-password' || errorCode === 'auth/invalid-credential') {
-      console.log("2");
       try {
-        console.log("3");
+        console.log("1");
         const response = await fetch('/loginFailed', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: email }),
         });
 
         const result = await response.json();
-        alert(result.message || 'Failed login attempt recorded.');
+        if (response.ok) {
+          console.log("2");
+          alert(result.message || 'Failed login attempt recorded.');
+        } else {
+          console.log("3");
+          alert(result.error || 'Error in failed login attempt.');
+        }
       } catch (err) {
         console.log("4");
         console.error('Error sending failed login attempt to the backend:', err);
       }
     }
-
     alert("Login failed: " + errorMsg);
   }
 });
