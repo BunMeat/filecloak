@@ -1,6 +1,6 @@
 import { initializeApp as initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js';
 import { getAuth as getAuth, signInWithEmailAndPassword as signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js';
-import { getFirestore as getFirestore, doc as doc, getDoc as getDoc, collection, query, where, getDocs, updateDoc  } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
+import { getFirestore as getFirestore, doc as doc, getDoc as getDoc } from 'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: window.env.FIREBASEKEY,
@@ -22,29 +22,32 @@ loginForm.addEventListener('submit', async (e) => {
 
   const email  = document.getElementById('emailLogin').value;
   const password  = document.getElementById('passwordLogin').value;
+
   try {
+    // Firebase Authentication login
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
+
+    // Fetch user document from Firestore
     const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-    //check if user is blocked
-    if (user.isBlocked === "blocked"){
-      console.log("1");
-      return error;
-    }
+    
+    // Check if the user is blocked
     if (userDoc.exists()) {
       const userData = userDoc.data();
-      if (user.isBlocked === "blocked"){
+      
+      if (userData.isBlocked === "blocked") {
         console.log("1");
-        return error;
+        alert("Your account is blocked. Contact support.");
+        return; // Prevent further actions if the account is blocked
+      }
+
+      // Redirect based on user role
+      if (userData.role === "user") {
+        alert("Sukses Login");
+        window.location.href = "../html/userPage.html";
       } else {
-        console.log("2");
-        if (userData.role === "user") {
-          alert("Sukses Login");
-          window.location.href = "../html/userPage.html";
-        } else {
-          alert("Sukses Login");
-          window.location.href = "../html/adminPageEncrypt.html";
-        }
+        alert("Sukses Login");
+        window.location.href = "../html/adminPageEncrypt.html";
       }
     } else {
       alert("Email / Password Salah");
@@ -52,41 +55,34 @@ loginForm.addEventListener('submit', async (e) => {
   } catch (error) {
     const errorCode = error.code;
     const errorMsg = error.message;
-    console.error('Login error: ', errorMsg);
 
-    if (errorCode === 'auth/invalid-credential' || errorCode === 'auth/wrong-password') {
-      console.log("3");
+    // If wrong password or invalid credential
+    if (errorCode === 'auth/wrong-password' || errorCode === 'auth/invalid-credential') {
+      console.log("2");
+      console.error('Wrong password or invalid credential, notifying server...');
 
+      // Send POST request to block user via Vercel API
       try {
-        // Query the users collection by email
-        const userCollection = collection(firestore, "users");
-        const q = query(userCollection, where("email", "==", email));  // Replace 'email' with the field in Firestore where you store the email
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-          // Get the first matching document (since email should be unique)
-          const userDoc = querySnapshot.docs[0];
-          const userId = userDoc.id; // The user ID (document ID) in Firestore
-
-          // Now update the isBlocked field in the user document
-          const userRefDoc = doc(userCollection, userId);
-          await updateDoc(userRefDoc, {
-            isBlocked: "blocked"  // Update the isBlocked field
-          });
-
-          console.log('User blocked successfully.');
+        console.log("3");
+        const response = await fetch('/api/blockUser', {  // Updated to Vercel route
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email })  // Send email to the backend
+        });
+        console.log("4");
+        if (response.ok) {
+          console.log('User notified for blocking.');
         } else {
-          console.log('No user found with the provided email.');
+          console.error('Failed to notify backend to block user:', response.statusText);
         }
-
       } catch (err) {
-        console.error('Error querying user or updating document: ', err);
+        console.error('Error sending block request to backend:', err);
       }
-  
     } else {
-      console.log("errorMsg", errorMsg);
-      console.log("errorCode", errorCode);
-      alert("Kesalahan Server", errorMsg);
+      console.error('Login error: ', errorMsg);
+      alert("Kesalahan Server: " + errorMsg);
     }
   }
 });
