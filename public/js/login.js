@@ -44,6 +44,7 @@ loginForm.addEventListener('submit', async (e) => {
     // If login fails, send failed attempt to the backend
     if (errorCode === 'auth/wrong-password' || errorCode === 'auth/invalid-credential') {
       try {
+        console.log("1");
         const response = await fetch('/loginFailed', {
           method: 'POST',
           headers: {
@@ -54,11 +55,14 @@ loginForm.addEventListener('submit', async (e) => {
 
         const result = await response.json();
         if (response.ok) {
+          console.log("2");
           alert(result.message || 'Failed login attempt recorded.');
         } else {
+          console.log("3");
           alert(result.error || 'Error in failed login attempt.');
         }
       } catch (err) {
+        console.log("4");
         console.error('Error sending failed login attempt to the backend:', err);
       }
     }
