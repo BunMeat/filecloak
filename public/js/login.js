@@ -64,7 +64,7 @@ loginForm.addEventListener('submit', async (e) => {
       // Send POST request to block user via Vercel API
       try {
         console.log("3");
-        const response = await fetch('../../api/blockUser.js', {  // Updated to Vercel route
+        const response = await fetch('api/blockUser', {  // Updated to Vercel route
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
