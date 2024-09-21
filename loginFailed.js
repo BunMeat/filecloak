@@ -3,7 +3,7 @@ import admin from 'firebase-admin';
 // Firebase Admin initialization
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
-  databaseURL: "https://console.firebase.google.com/u/0/project/filecloak/overview"  // Replace with your Firebase project URL
+  databaseURL: "https://filecloak-default-rtdb.asia-southeast1.firebasedatabase.app/"  // Replace with your Firebase project URL
 });
 
 // Firestore instance
