@@ -11,6 +11,14 @@ const app = express();
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Middleware for JSON requests
+app.use(express.json());
+
+// Example of an API route
+app.post('/api/blockUser', async (req, res) => {
+  // Handle blocking logic here
+});
+
 // Start the server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
