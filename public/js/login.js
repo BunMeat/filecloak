@@ -64,12 +64,12 @@ loginForm.addEventListener('submit', async (e) => {
       // Send POST request to block user via Vercel API
       try {
         console.log("3");
-        const response = await fetch('api/blockUser', {  // Updated to Vercel route
+        const response = await fetch('/api/blockUser', { // Correctly set to the API path
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email })  // Send email to the backend
+          body: JSON.stringify({ email })
         });
         console.log("4");
         if (response.ok) {
