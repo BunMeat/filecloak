@@ -63,7 +63,7 @@ loginForm.addEventListener('submit', async (e) => {
       // Fetch user UID from Firestore based on the email
       // Fetch user document from Firestore using the email as the document ID
       const userRefDoc = doc(firestore, 'users', email);
-
+      console.log("2.5");
       try {
         const userDoc = await getDoc(userRefDoc);
         console.log("3");
