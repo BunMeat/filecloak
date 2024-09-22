@@ -31,12 +31,10 @@ registrationForm.addEventListener('submit', async (e) => {
     } else {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      console.log('User registered:', user);
+      ('User registered:', user);
 
-      // Use email as document ID (replace @ and . with special characters)
       const userCollection = collection(firestore, "users");
-      const userId = email.replace(/[@.]/g, '_');  // Example replacement
-      const userRefDoc = doc(userCollection, userId);
+      const userRefDoc = doc(userCollection, email);
       const userData = {
         uid: user.uid,
         role: "user",
@@ -45,7 +43,7 @@ registrationForm.addEventListener('submit', async (e) => {
       };
       await setDoc(userRefDoc, userData);
       alert("Pendaftaran User Berhasil, Silahkan Login");
-      console.log('User registered and data saved to Firestore:', user);
+      ('User registered and data saved to Firestore:', user);
     }
   } catch (error) {
     const errorCode = error.code;
@@ -53,7 +51,7 @@ registrationForm.addEventListener('submit', async (e) => {
     if (errorCode === 'auth/email-already-in-use') {
       alert("Email Sudah Terdaftar");
     } else {
-      alert("Kesalahan Server: " + errorMessage);
+      alert("Kesalahan Server", errorMessage);
     }
     console.error('Registration error:', errorMessage);
   }
