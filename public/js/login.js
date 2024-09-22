@@ -35,7 +35,7 @@ loginForm.addEventListener('submit', async (e) => {
     if (userDoc.exists()) {
       const userData = userDoc.data();
       
-      if (userData.isBlocked === "blocked") {
+      if (userData.isBlocked === "true") {
         console.log("1");
         alert("Your account is blocked. Contact support.");
         return; // Prevent further actions if the account is blocked
