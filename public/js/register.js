@@ -39,7 +39,8 @@ registrationForm.addEventListener('submit', async (e) => {
         uid: user.uid,
         role: "user",
         email: email,
-        isBlocked: false
+        isBlocked: false,
+        attemptNo: 0
       };
       await setDoc(userRefDoc, userData);
       alert("Pendaftaran User Berhasil, Silahkan Login");

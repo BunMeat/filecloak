@@ -63,7 +63,7 @@ function exportToTxt2(decryptedText) {
 
 decryptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  
+  console.log("1");
   // Get the encrypted token and decryption key from the form
   const encryptET = document.getElementById('tokenInput').value;
   const keyET = document.getElementById('keyInput').value;
@@ -72,13 +72,16 @@ decryptForm.addEventListener('submit', async (e) => {
   const decryptedURL = decrypt(encryptET, keyET);
 
   try {
+    console.log("2");
     const user = auth.currentUser;
+    console.log("3");
     if (user) {
+      console.log("4");
         const encryptedFilesCollection = collection(firestore, "encryptedFiles");
-
+        console.log("5");
         // Retrieve all documents in the "encryptedFiles" collection
         const querySnapshot = await getDocs(encryptedFilesCollection);
-
+        console.log("6");     
         let foundFile = null;
         querySnapshot.forEach((doc) => {
             // Find the document with an encryption token matching the input
@@ -86,8 +89,9 @@ decryptForm.addEventListener('submit', async (e) => {
                 foundFile = doc.data();
             }
         });
-
+        console.log("7");
         if (foundFile) {
+          console.log("8");
             // Decrypt the note using the same key
             const encryptedNote = foundFile.encryptNote;
             const decryptedNoteText = decrypt(encryptedNote, keyET);

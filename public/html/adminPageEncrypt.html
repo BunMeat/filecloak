@@ -29,7 +29,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
-                    const userDocRef = doc(firestore, 'users', user.uid);
+                    const userDocRef = doc(firestore, 'users', user.email);
                     const userDocSnap = await getDoc(userDocRef);
 
                     if (userDocSnap.exists()) {

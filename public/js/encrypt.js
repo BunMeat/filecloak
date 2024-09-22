@@ -151,6 +151,7 @@ async function storeMetadataInFirestore(userId, encryptedLink, encryptedNote) {
     const fileData = {
       encryptNote: encryptedNote,
       encryptUrl: encryptedLink,
+      timestamp: convertedTime
     };
 
     // Store metadata in Firestore
@@ -288,7 +289,7 @@ encryptForm.addEventListener('submit', async (e) => {
       displayEncryptedLink([encryptedLink], fileNames);
 
       // Store metadata in Firestore
-      await storeMetadataInFirestore(user.uid, encryptedLink, encryptedNote);
+      await storeMetadataInFirestore(user.email, encryptedLink, encryptedNote);
     } else {
       // Case 2: Encrypt and upload each file individually
       for (const file of files) {
@@ -308,7 +309,7 @@ encryptForm.addEventListener('submit', async (e) => {
         fileNames.push(file.name);
 
         // Store metadata in Firestore
-        await storeMetadataInFirestore(user.uid, encryptedLink, encryptedNote);
+        await storeMetadataInFirestore(user.email, encryptedLink, encryptedNote);
       }
 
       // Display all encrypted URLs
