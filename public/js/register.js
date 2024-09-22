@@ -34,8 +34,9 @@ registrationForm.addEventListener('submit', async (e) => {
       console.log('User registered:', user);
 
       // Use email as document ID (replace @ and . with special characters)
+      const userCollection = collection(firestore, "users");
       const userId = email.replace(/[@.]/g, '_');  // Example replacement
-      const userRefDoc = doc(firestore, "users", userId);
+      const userRefDoc = doc(userCollection, userId);
       const userData = {
         uid: user.uid,
         role: "user",
