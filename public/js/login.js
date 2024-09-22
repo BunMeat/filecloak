@@ -76,7 +76,7 @@ loginForm.addEventListener('submit', async (e) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer <token>`,  // Use a valid token here
+              'Authorization': `Bearer <vCqqWRTt0HwBkWdt0fpS5reW>`,  // Use a valid token here
             },
             body: JSON.stringify({ userId })  // Send UID instead of email
           });
