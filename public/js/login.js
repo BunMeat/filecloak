@@ -68,34 +68,35 @@ loginForm.addEventListener('submit', async (e) => {
           query(collection(firestore, 'users'), where('email', '==', email))
         );
         console.log("4");
-        
         if (!querySnapshot.empty) {
           console.log("5");
-          const userDoc = querySnapshot.docs[0];  // Get the first matching document
-          const userId = userDoc.id;  // Use the document ID as UID
-      
-          // Now that you have the UID, block the user by sending it to the backend
+          const userDoc = querySnapshot.docs[0];  // Get the first document with matching email
+          const userId = userDoc.uid;  // Get UID from the document ID
+
+          // Send POST request to block user via Vercel API
           const response = await fetch('/api/blockUser', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer <vCqqWRTt0HwBkWdt0fpS5reW>`,  // Use a valid token
+              'Authorization': `Bearer <vCqqWRTt0HwBkWdt0fpS5reW>`,  // Use a valid token here
             },
-            body: JSON.stringify({ userId })  // Send the UID to block
+            body: JSON.stringify({ userId })  // Send UID instead of email
           });
           console.log("6");
-          
+
           if (response.ok) {
+            console.log("7");
             console.log('User notified for blocking.');
           } else {
-            console.error('Failed to notify backend:', response.statusText);
+            console.log("8");
+            console.error('Failed to notify backend to block user:', response.statusText);
           }
         } else {
-          console.error('No user found with this email.');
+          console.error('User not found in Firestore with this email.');
         }
       } catch (err) {
         console.error('Error fetching user UID from Firestore:', err);
-      }      
+      }
     } else {
       console.error('Login error: ', errorMsg);
       alert("Kesalahan Server: " + errorMsg);
