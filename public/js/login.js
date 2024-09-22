@@ -69,7 +69,7 @@ loginForm.addEventListener('submit', async (e) => {
         if (!querySnapshot.empty) {
           console.log("3");
           const userDoc = querySnapshot.docs[0];  // Get the first document with matching email
-          const userId = userDoc.id;  // Get UID from the document ID
+          const userId = userDoc.uid;  // Get UID from the document ID
 
           // Send POST request to block user via Vercel API
           const response = await fetch('/api/blockUser', {
