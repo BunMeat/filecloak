@@ -65,16 +65,42 @@ loginForm.addEventListener('submit', async (e) => {
       const userRefDoc = doc(firestore, 'users', email);
 
       try {
-        
         const userDoc = await getDoc(userRefDoc);
         console.log("3");
+      
         if (userDoc.exists()) {
           console.log("4");
           const userData = userDoc.data();
-          
-          if (userData.isBlocked === false) { // Check if user is blocked
+      
+          if (userData.isBlocked === false) { 
+            console.log("5");
             console.log("User is not blocked.");
-            // Proceed with login flow or other actions
+      
+            // Check the number of login attempts from userData or another source
+            if (userData.loginAttempts >= 3) {
+              console.log("6");
+              console.log("User exceeded allowed login attempts, blocking user...");
+      
+              // Call the blockUser API
+              const response = await fetch('/api/blockUser', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId: userData.uid }) // Send userId to block the user
+              });
+              console.log("7");
+      
+              if (response.ok) {
+                console.log('User successfully blocked.');
+                alert("Your account has been blocked due to multiple failed login attempts.");
+              } else {
+                console.error('Failed to block user:', response.statusText);
+              }
+            } else {
+              // Proceed with login or other actions if user is not blocked and hasn't exceeded attempts
+              console.log("Proceeding with login...");
+            }
           } else {
             alert("Your account is blocked. Contact support.");
           }
@@ -84,6 +110,7 @@ loginForm.addEventListener('submit', async (e) => {
       } catch (err) {
         console.error('Error fetching user document from Firestore:', err);
       }
+      
 
     } else {
       console.error('Login error: ', errorMsg);
