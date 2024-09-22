@@ -63,11 +63,13 @@ loginForm.addEventListener('submit', async (e) => {
 
       // Fetch user UID from Firestore based on the email
       try {
+        console.log("3");
         const querySnapshot = await getDocs(
           query(collection(firestore, 'users'), where('email', '==', email))
         );
+        console.log("4");
         if (!querySnapshot.empty) {
-          console.log("3");
+          console.log("5");
           const userDoc = querySnapshot.docs[0];  // Get the first document with matching email
           const userId = userDoc.uid;  // Get UID from the document ID
 
@@ -80,13 +82,13 @@ loginForm.addEventListener('submit', async (e) => {
             },
             body: JSON.stringify({ userId })  // Send UID instead of email
           });
-          console.log("4");
+          console.log("6");
 
           if (response.ok) {
-            console.log("5");
+            console.log("7");
             console.log('User notified for blocking.');
           } else {
-            console.log("6");
+            console.log("8");
             console.error('Failed to notify backend to block user:', response.statusText);
           }
         } else {
