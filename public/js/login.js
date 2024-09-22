@@ -20,8 +20,8 @@ const loginForm = document.getElementById('loginForm');
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const email  = document.getElementById('emailLogin').value;
-  const password  = document.getElementById('passwordLogin').value;
+  const email = document.getElementById('emailLogin').value;
+  const password = document.getElementById('passwordLogin').value;
 
   try {
     // Firebase Authentication login
@@ -61,24 +61,35 @@ loginForm.addEventListener('submit', async (e) => {
       console.log("2");
       console.error('Wrong password or invalid credential, notifying server...');
 
-      // Send POST request to block user via Vercel API
+      // Fetch user UID from Firestore based on the email
       try {
-        console.log("3");
-        const response = await fetch('/api/blockUser', { // Correctly set to the API path
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email })
-        });
-        console.log("4");
-        if (response.ok) {
-          console.log('User notified for blocking.');
+        const querySnapshot = await getDocs(
+          query(collection(firestore, 'users'), where('email', '==', email))
+        );
+        if (!querySnapshot.empty) {
+          const userDoc = querySnapshot.docs[0];  // Get the first document with matching email
+          const userId = userDoc.id;  // Get UID from the document ID
+
+          // Send POST request to block user via Vercel API
+          const response = await fetch('/api/blockUser', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer <token>`,  // Use a valid token here
+            },
+            body: JSON.stringify({ userId })  // Send UID instead of email
+          });
+
+          if (response.ok) {
+            console.log('User notified for blocking.');
+          } else {
+            console.error('Failed to notify backend to block user:', response.statusText);
+          }
         } else {
-          console.error('Failed to notify backend to block user:', response.statusText);
+          console.error('User not found in Firestore with this email.');
         }
       } catch (err) {
-        console.error('Error sending block request to backend:', err);
+        console.error('Error fetching user UID from Firestore:', err);
       }
     } else {
       console.error('Login error: ', errorMsg);
@@ -86,3 +97,4 @@ loginForm.addEventListener('submit', async (e) => {
     }
   }
 });
+

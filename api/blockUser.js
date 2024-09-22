@@ -1,11 +1,10 @@
 import admin from 'firebase-admin';
-import { doc, updateDoc } from 'firebase-admin/firestore'; // Import Firestore functions
 
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.applicationDefault(),
-    databaseURL: 'https://filecloak-default-rtdb.asia-southeast1.firebasedatabase.app/'  // Your Firebase Realtime Database URL
+    databaseURL: 'https://filecloak-default-rtdb.asia-southeast1.firebasedatabase.app/',  // Your Firebase Realtime Database URL
   });
 }
 
@@ -13,12 +12,12 @@ const db = admin.firestore();
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { userId } = req.body;  // Now expect userId
+    const { userId } = req.body;  // Expect userId in the body
 
     try {
-      // Update the 'isBlocked' field to 'blocked'
-      const userRef = doc(db, 'users', userId);  // Access the user document by UID
-      await updateDoc(userRef, { isBlocked: 'blocked' });
+      // Access the user document by UID and update the 'isBlocked' field
+      const userRef = db.collection('users').doc(userId);
+      await userRef.update({ isBlocked: 'blocked' });
 
       res.status(200).json({ message: 'User successfully blocked' });
     } catch (error) {
