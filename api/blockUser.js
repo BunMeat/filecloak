@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     try {
       // Access the user document by UID and update the 'isBlocked' field
       const userRef = db.collection('users').doc(userId);
-      await userRef.update({ isBlocked: 'true' });
+      await userRef.update({ isBlocked: true });
 
       res.status(200).json({ message: 'User successfully blocked' });
     } catch (error) {

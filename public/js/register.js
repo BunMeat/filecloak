@@ -40,7 +40,7 @@ registrationForm.addEventListener('submit', async (e) => {
         uid: user.uid,
         role: "user",
         email: email,
-        isBlocked: "false"
+        isBlocked: false
       };
       await setDoc(userRefDoc, userData);
       alert("Pendaftaran User Berhasil, Silahkan Login");
