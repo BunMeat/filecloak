@@ -26,10 +26,9 @@ loginForm.addEventListener('submit', async (e) => {
   try {
     // Firebase Authentication login
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
 
     // Fetch user document from Firestore
-    const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+    const userDoc = await getDoc(doc(firestore, 'users', email));
     
     // Check if the user is blocked
     if (userDoc.exists()) {
@@ -62,41 +61,30 @@ loginForm.addEventListener('submit', async (e) => {
       console.error('Wrong password or invalid credential, notifying server...');
 
       // Fetch user UID from Firestore based on the email
+      // Fetch user document from Firestore using the email as the document ID
+      const userRefDoc = doc(firestore, 'users', email);
+
       try {
+        
+        const userDoc = await getDoc(userRefDoc);
         console.log("3");
-        const querySnapshot = await getDocs(
-          query(collection(firestore, 'users'), where('email', '==', email))
-        );
-        console.log("4");
-        if (!querySnapshot.empty) {
-          console.log("5");
-          const userDoc = querySnapshot.docs[0];  // Get the first document with matching email
-          const userId = userDoc.uid;  // Get UID from the document ID
-
-          // Send POST request to block user via Vercel API
-          const response = await fetch('/api/blockUser', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer <vCqqWRTt0HwBkWdt0fpS5reW>`,  // Use a valid token here
-            },
-            body: JSON.stringify({ userId })  // Send UID instead of email
-          });
-          console.log("6");
-
-          if (response.ok) {
-            console.log("7");
-            console.log('User notified for blocking.');
+        if (userDoc.exists()) {
+          console.log("4");
+          const userData = userDoc.data();
+          
+          if (userData.isBlocked === false) { // Check if user is blocked
+            console.log("User is not blocked.");
+            // Proceed with login flow or other actions
           } else {
-            console.log("8");
-            console.error('Failed to notify backend to block user:', response.statusText);
+            alert("Your account is blocked. Contact support.");
           }
         } else {
-          console.error('User not found in Firestore with this email.');
+          console.error('User document not found.');
         }
       } catch (err) {
-        console.error('Error fetching user UID from Firestore:', err);
+        console.error('Error fetching user document from Firestore:', err);
       }
+
     } else {
       console.error('Login error: ', errorMsg);
       alert("Kesalahan Server: " + errorMsg);
