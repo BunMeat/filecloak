@@ -65,6 +65,7 @@ loginForm.addEventListener('submit', async (e) => {
       const userRefDoc = doc(firestore, 'users', email);
       console.log("2.5");
       try {
+        console.log("2.75");
         const userDoc = await getDoc(userRefDoc);
         console.log("3");
       
