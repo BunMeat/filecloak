@@ -71,7 +71,7 @@ loginForm.addEventListener('submit', async (e) => {
       });
 
       // Check if the user has reached 3 failed attempts and block the account
-      if (userData.attemptNo + 1 >= 3) {
+      if (userData.attemptNo >= 3) {
         alert("Pengguna diblokir. Hubungi dukungan.");
         window.location.href = "../html/Login.html";  // Redirect to login page after blocking
       } else {
